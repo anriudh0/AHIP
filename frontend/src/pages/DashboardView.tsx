@@ -31,7 +31,7 @@ export function DashboardView() {
 
   return (
     <>
-      <span className="badge">Phase 7 Operations Dashboard</span>
+      <span className="badge">Operations Dashboard</span>
       <h2>AHIP Operations Dashboard</h2>
       <p>Executive and operational view of healthcare workflow risk, recommendations, and governance signals.</p>
 
