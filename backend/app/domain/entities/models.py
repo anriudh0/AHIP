@@ -80,3 +80,21 @@ class AgentMemory(Base):
     evidence: Mapped[dict] = mapped_column(JSON, default={})
     confidence: Mapped[float] = mapped_column(Float, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+class SharedCaseMemory(Base):
+    __tablename__ = "shared_case_memory"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    case_id: Mapped[str] = mapped_column(String(50), index=True)
+    memory: Mapped[dict] = mapped_column(JSON, default={})
+    consolidated_output: Mapped[dict] = mapped_column(JSON, default={})
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    event_type: Mapped[str] = mapped_column(String(100), index=True)
+    case_id: Mapped[str | None] = mapped_column(String(50), index=True, nullable=True)
+    actor_role: Mapped[str] = mapped_column(String(50))
+    actor_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    details: Mapped[dict] = mapped_column(JSON, default={})
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.routes import health, patients, claims, agents, dashboard, providers
+from app.infrastructure.database.session import init_db
 
 app = FastAPI(
     title="AHIP API",
@@ -22,3 +23,7 @@ app.include_router(claims.router, prefix="/api/v1/claims", tags=["Claims"])
 app.include_router(providers.router, prefix="/api/v1/providers", tags=["Providers"])
 app.include_router(agents.router, prefix="/api/v1/agents", tags=["Agents"])
 app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["Dashboard"])
+
+@app.on_event("startup")
+def startup_event():
+    init_db()

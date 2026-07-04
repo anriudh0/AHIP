@@ -6,7 +6,7 @@ from app.application.agents.claims_review_agent import ClaimsReviewAgent
 from app.application.agents.orchestrator import WorkflowOrchestrator
 from app.application.agents.patient_journey_agent import PatientJourneyAgent
 from app.application.agents.provider_contract_agent import ProviderContractAgent
-from app.domain.entities.models import AgentExecution, AgentMemory
+from app.domain.entities.models import AgentExecution, AgentMemory, SharedCaseMemory
 from app.infrastructure.database.session import Base
 
 
@@ -53,11 +53,46 @@ def test_orchestrator_persists_agent_execution_history():
 
     assert result["case_id"] == "CASE-003"
     assert len(result["agent_outputs"]) == 3
-    assert len(executions) == 3
+    assert len(executions) == 4
     assert len(memories) == 3
     assert {execution.agent_name for execution in executions} == {
         "Patient Journey Agent",
         "Claims Review Agent",
         "Provider Contract Agent",
+        "Consolidator Agent",
     }
     assert all(execution.output["case_id"] == "CASE-003" for execution in executions)
+
+
+def test_collaboration_pipeline_passes_shared_memory_and_consolidates_output():
+    engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(engine)
+    SessionLocal = sessionmaker(bind=engine)
+
+    with SessionLocal() as db:
+        result = WorkflowOrchestrator().run_case_review("CASE-004", db)
+
+        shared_memory_rows = db.scalars(select(SharedCaseMemory)).all()
+        executions = db.scalars(select(AgentExecution)).all()
+
+    assert result["case_id"] == "CASE-004"
+    assert result["shared_memory"]["agent_sequence"] == [
+        "Patient Journey Agent",
+        "Claims Review Agent",
+        "Provider Contract Agent",
+    ]
+    assert result["consolidated_output"]["agent_name"] == "Consolidator Agent"
+    assert result["consolidated_output"]["risk_level"] == "High"
+    assert result["consolidated_output"]["next_owner"] == "Provider Contract Analyst"
+    assert len(shared_memory_rows) == 1
+    assert shared_memory_rows[0].memory["agent_sequence"] == result["shared_memory"]["agent_sequence"]
+    assert {execution.agent_name for execution in executions} == {
+        "Patient Journey Agent",
+        "Claims Review Agent",
+        "Provider Contract Agent",
+        "Consolidator Agent",
+    }

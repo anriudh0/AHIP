@@ -1,12 +1,14 @@
 from sqlalchemy.orm import Session
 from app.infrastructure.database.session import SessionLocal, engine
 from app.domain.entities.models import Base, Patient, Provider, ProviderContract, BenefitPlan, Claim, WorkflowEvent, CareTask
+from app.infrastructure.database.session import init_db
 import json
 
 def seed():
     # Only drop and recreate tables if this script is responsible for it (usually alembic does it, but for seed we can rely on existing tables)
     # Base.metadata.drop_all(bind=engine)
     # Base.metadata.create_all(bind=engine)
+    init_db()
     
     db: Session = SessionLocal()
     
