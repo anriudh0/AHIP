@@ -5,12 +5,13 @@ class PatientJourneyAgent(BaseHealthcareAgent):
     agent_name = "Patient Journey Agent"
 
     def run(self, case_id: str, context: dict) -> AgentOutput:
-        events = context.get("events", [])
+        context_payload = context.model_dump() if hasattr(context, "model_dump") else context or {}
+        events = context_payload.get("events", [])
         return AgentOutput(
             agent_name=self.agent_name,
             case_id=case_id,
             risk_level="Medium" if "CLAIM_PENDED" in events else "Low",
-            observation="Patient journey is currently at claim review stage.",
+            observation=f"Patient journey is currently at {context_payload.get('journey_stage', 'Unknown')} stage.",
             recommendation="Monitor claim review progress and assign next workflow action.",
             evidence=[f"Events: {', '.join(events)}"],
             confidence=0.70,

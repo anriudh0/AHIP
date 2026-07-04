@@ -10,9 +10,9 @@ class WorkflowOrchestrator:
 
     def run_case_review(self, case_id: str, db: Session | None = None) -> dict:
         outputs = [
-            PatientJourneyAgent().execute(case_id, self.context_builder.build_patient_journey_context(case_id), db).model_dump(),
-            ClaimsReviewAgent().execute(case_id, self.context_builder.build_claim_context(case_id), db).model_dump(),
-            ProviderContractAgent().execute(case_id, self.context_builder.build_provider_contract_context(case_id), db).model_dump(),
+            PatientJourneyAgent().execute(case_id, self.context_builder.build_patient_journey_context(case_id, db), db).model_dump(),
+            ClaimsReviewAgent().execute(case_id, self.context_builder.build_claim_context(case_id, db), db).model_dump(),
+            ProviderContractAgent().execute(case_id, self.context_builder.build_claim_context(case_id, db), db).model_dump(),
         ]
         if db is not None:
             db.commit()

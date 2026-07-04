@@ -9,3 +9,7 @@ router = APIRouter()
 @router.post("/run-case-review")
 def run_case_review(request: AgentRunRequest, db: Session = Depends(get_db)):
     return WorkflowOrchestrator().run_case_review(request.case_id, db)
+
+@router.get("/context/{case_id}")
+def get_case_context(case_id: str, db: Session = Depends(get_db)):
+    return WorkflowOrchestrator().context_builder.build_case_context(case_id, db)
