@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { AlertTriangle, BarChart3, ClipboardList, FileText, Gauge, ShieldCheck } from 'lucide-react'
 import { getDashboardSummary, getGovernanceSummary, getPriorityQueue, runCaseReview } from '../api/client'
 import { MetricCard } from '../components/MetricCard'
 import { StatusBadge } from '../components/StatusBadge'
@@ -30,94 +31,140 @@ export function DashboardView() {
   const highRiskPreview = recommendations.filter(item => ['Critical', 'High'].includes(item.priority)).slice(0, 5)
 
   return (
-    <>
-      <span className="badge">Operations Dashboard</span>
-      <h2>AHIP Operations Dashboard</h2>
-      <p>Executive and operational view of healthcare workflow risk, recommendations, and governance signals.</p>
+    <div className="page-stack">
+      <header className="page-hero">
+        <div>
+          <span className="eyebrow">Operations Dashboard</span>
+          <h1>Healthcare operations intelligence</h1>
+          <p>Monitor agent-driven recommendations, workflow risk, governance signals, and case review activity from one executive workspace.</p>
+        </div>
+        <div className="hero-stat">
+          <span>Queue Health</span>
+          <strong>{recommendations.length}</strong>
+          <p>active recommendations</p>
+        </div>
+      </header>
 
-      {error && <p className="error-state">{error}</p>}
+      {error && <div className="error-state">{error}</div>}
 
       {summary && (
-        <>
-          <h3>Executive Summary</h3>
-          <div className="grid">
-            <MetricCard label="Open Cases" value={summary.open_cases} />
-            <MetricCard label="High Risk" value={summary.high_risk_cases} />
-            <MetricCard label="Claim Exceptions" value={summary.claim_exceptions} />
-            <MetricCard label="Contract Issues" value={summary.provider_contract_issues} />
-            <MetricCard label="Compliance Gaps" value={summary.compliance_gaps} />
+        <section className="content-section">
+          <div className="section-heading">
+            <div>
+              <span className="section-kicker">Executive Summary</span>
+              <h2>Operational signal overview</h2>
+            </div>
           </div>
-        </>
+          <div className="metric-grid">
+            <MetricCard icon={ClipboardList} label="Open Cases" value={summary.open_cases} detail="care and workflow tasks" />
+            <MetricCard icon={AlertTriangle} label="High Risk" value={summary.high_risk_cases} detail="members flagged high risk" />
+            <MetricCard icon={FileText} label="Claim Exceptions" value={summary.claim_exceptions} detail="pended claim activity" />
+            <MetricCard icon={ShieldCheck} label="Contract Issues" value={summary.provider_contract_issues} detail="provider contract signals" />
+            <MetricCard icon={Gauge} label="Compliance Gaps" value={summary.compliance_gaps} detail="documentation review" />
+          </div>
+        </section>
       )}
 
-      <h3>Operations Metrics</h3>
-      <div className="grid">
-        <MetricCard label="Queue Items" value={recommendations.length} />
-        <MetricCard label="Critical Priority" value={recommendations.filter(item => item.priority === 'Critical').length} />
-        <MetricCard label="High Priority" value={recommendations.filter(item => item.priority === 'High').length} />
-        <MetricCard label="Accepted" value={governanceSummary?.accepted_recommendations || 0} />
-        <MetricCard label="Overrides" value={governanceSummary?.overridden_recommendations || 0} />
-      </div>
-
-      <section className="section">
+      <section className="content-section">
         <div className="section-heading">
-          <h3>High-Risk Queue Preview</h3>
-          <Link to="/risk-queue">View full queue</Link>
+          <div>
+            <span className="section-kicker">Operations Metrics</span>
+            <h2>Recommendation workload</h2>
+          </div>
+        </div>
+        <div className="metric-grid">
+          <MetricCard icon={BarChart3} label="Queue Items" value={recommendations.length} detail="total recommendations" />
+          <MetricCard icon={AlertTriangle} label="Critical Priority" value={recommendations.filter(item => item.priority === 'Critical').length} detail="requires immediate review" />
+          <MetricCard icon={ShieldCheck} label="High Priority" value={recommendations.filter(item => item.priority === 'High').length} detail="elevated workflow risk" />
+          <MetricCard icon={ClipboardList} label="Accepted" value={governanceSummary?.accepted_recommendations || 0} detail="human-reviewed decisions" />
+          <MetricCard icon={FileText} label="Overrides" value={governanceSummary?.overridden_recommendations || 0} detail="manual governance actions" />
+        </div>
+      </section>
+
+      <section className="content-section">
+        <div className="section-heading">
+          <div>
+            <span className="section-kicker">High-Risk Queue Preview</span>
+            <h2>Cases needing attention</h2>
+          </div>
+          <Link className="button button-secondary" to="/risk-queue">View full queue</Link>
         </div>
         {highRiskPreview.length === 0 ? (
-          <p className="empty-state">No critical or high-priority recommendations are available yet.</p>
+          <div className="empty-state">
+            <AlertTriangle size={24} aria-hidden="true" />
+            <strong>No elevated recommendations yet</strong>
+            <p>Run a case review to populate the high-risk queue preview.</p>
+          </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Case</th>
-                <th>Risk</th>
-                <th>Priority</th>
-                <th>Owner</th>
-                <th>Recommendation</th>
-              </tr>
-            </thead>
-            <tbody>
-              {highRiskPreview.map(item => (
-                <tr key={item.case_id}>
-                  <td><Link to={`/case/${item.case_id}`}>{item.case_id}</Link></td>
-                  <td><StatusBadge value={item.risk_level} /></td>
-                  <td><StatusBadge value={item.priority} /></td>
-                  <td>{item.escalation_owner}</td>
-                  <td>{item.recommendation}</td>
+          <div className="table-shell">
+            <table>
+              <thead>
+                <tr>
+                  <th>Case</th>
+                  <th>Risk</th>
+                  <th>Priority</th>
+                  <th>Owner</th>
+                  <th>Recommendation</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {highRiskPreview.map(item => (
+                  <tr key={item.case_id}>
+                    <td><Link to={`/case/${item.case_id}`}>{item.case_id}</Link></td>
+                    <td><StatusBadge value={item.risk_level} /></td>
+                    <td><StatusBadge value={item.priority} /></td>
+                    <td>{item.escalation_owner}</td>
+                    <td>{item.recommendation}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
 
       {governanceSummary && (
-        <section className="section">
-          <h3>Governance Summary</h3>
-        <div className="grid">
+        <section className="content-section">
+          <div className="section-heading">
+            <div>
+              <span className="section-kicker">Governance Summary</span>
+              <h2>Decision review posture</h2>
+            </div>
+          </div>
+          <div className="metric-grid compact">
             <MetricCard label="Audit Events" value={governanceSummary.total_audit_events} />
             <MetricCard label="Pending Reviews" value={governanceSummary.pending_recommendations} />
             <MetricCard label="Accepted" value={governanceSummary.accepted_recommendations} />
             <MetricCard label="Overrides" value={governanceSummary.overridden_recommendations} />
-        </div>
+          </div>
         </section>
       )}
 
-      <section className="section">
-        <h3>Workflow Action</h3>
-        <p>Run the deterministic multi-agent review for a known case and refresh the priority queue.</p>
-        <div className="action-row">
-          <input value={caseId} onChange={(event: any) => setCaseId(event.target.value)} />
-        <button onClick={handleRunAgents}>Run Sample Case Review</button>
+      <section className="content-section">
+        <div className="section-heading">
+          <div>
+            <span className="section-kicker">Workflow Actions</span>
+            <h2>Run deterministic case review</h2>
+            <p>Trigger the existing multi-agent pipeline and refresh the recommendation queue.</p>
+          </div>
         </div>
-        {agentResult && <pre>{JSON.stringify(agentResult, null, 2)}</pre>}
+        <div className="form-panel">
+          <label>
+            Case ID
+            <input value={caseId} onChange={(event: any) => setCaseId(event.target.value)} placeholder="CLM2001" />
+          </label>
+          <button className="button button-primary" onClick={handleRunAgents}>Run Case Review</button>
+        </div>
+        {agentResult && <pre className="json-panel">{JSON.stringify(agentResult, null, 2)}</pre>}
       </section>
 
-      <section className="section">
-        <h3>Product Boundary</h3>
-        <p>AHIP is not a chatbot, not a generic RAG system, and not a medical diagnosis tool.</p>
+      <section className="boundary-panel">
+        <ShieldCheck size={20} aria-hidden="true" />
+        <div>
+          <strong>Governance-first product boundary</strong>
+          <p>AHIP is not a chatbot, not a generic RAG system, and not a medical diagnosis tool. Recommendations remain operational and human-reviewed.</p>
+        </div>
       </section>
-    </>
+    </div>
   )
 }

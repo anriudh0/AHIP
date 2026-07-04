@@ -12,13 +12,13 @@ AHIP is not a chatbot, not a generic RAG application, and not a medical diagnosi
 - Sequential multi-agent orchestration with shared case memory and consolidated recommendations.
 - Risk scoring, escalation ownership, priority queue, explainability notes, and recommendation workflow.
 - Governance foundation with audit logs, manual override capture, recommendation status updates, execution history, and role-based access checks.
-- React operations dashboard with executive metrics, risk queue, case detail view, evidence, context, relationships, and agent timeline.
+- Enterprise React operations dashboard with collapsible navigation, executive metrics, risk queue, case detail view, evidence, context, relationships, and agent timeline.
 
 ## Architecture Summary
 
 | Layer | Implementation |
 |---|---|
-| Frontend | React + TypeScript + Vite |
+| Frontend | React + TypeScript + Vite + Lucide React |
 | Backend | FastAPI |
 | Database | PostgreSQL with SQLAlchemy models |
 | Agent Layer | Deterministic Python services |

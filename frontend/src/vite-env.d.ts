@@ -40,6 +40,35 @@ declare module 'react-router-dom' {
   export function BrowserRouter(props: { children?: any }): any
   export function Routes(props: { children?: any }): any
   export function Route(props: { path: string; element: any }): any
-  export function Link(props: { to: string; children?: any; className?: string; style?: any }): any
+  export function Link(props: { to: string; children?: any; className?: string; style?: any; key?: any }): any
   export function useParams(): Record<string, string | undefined>
+  export function useLocation(): { pathname: string }
+}
+
+declare module 'lucide-react' {
+  export const Activity: any
+  export const AlertTriangle: any
+  export const ArrowLeft: any
+  export const BarChart3: any
+  export const BookOpenCheck: any
+  export const Building2: any
+  export const ChevronLeft: any
+  export const ChevronRight: any
+  export const ClipboardList: any
+  export const Database: any
+  export const FileText: any
+  export const Filter: any
+  export const Gauge: any
+  export const HeartPulse: any
+  export const Hospital: any
+  export const Info: any
+  export const Layers3: any
+  export const ListChecks: any
+  export const Route: any
+  export const Search: any
+  export const ShieldAlert: any
+  export const ShieldCheck: any
+  export const Sparkles: any
+  export const Stethoscope: any
+  export const Users: any
 }
