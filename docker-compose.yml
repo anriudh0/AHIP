@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ahip
+      POSTGRES_PASSWORD: ahip_password
+      POSTGRES_DB: ahip_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ahip_pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg2://ahip:ahip_password@postgres:5432/ahip_db
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  ahip_pgdata:

@@ -1,0 +1,17 @@
+{
+  "name": "ahip-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc && vite build"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-router-dom": "^7.18.0",
+    "typescript": "latest",
+    "vite": "latest"
+  }
+}
