@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.routes import health, patients, claims, agents, dashboard, providers
-from app.infrastructure.database.session import init_db
+from app.domain.entities.models import Patient
+from app.infrastructure.database.session import SessionLocal, init_db
 
 app = FastAPI(
     title="AHIP API",
@@ -27,3 +28,17 @@ app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["Dashboar
 @app.on_event("startup")
 def startup_event():
     init_db()
+    db = SessionLocal()
+    existing_patient = None
+    try:
+        existing_patient = db.query(Patient).first()
+    finally:
+        db.close()
+
+    if existing_patient is None:
+        from seed_data import seed
+
+        seed()
+        print("Demo database was empty; seeded initial data.")
+    else:
+        print("Existing database data detected; seeding skipped.")
