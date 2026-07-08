@@ -22,13 +22,27 @@ export function DashboardView() {
       .catch(console.error)
   }, [])
 
+  const dedupedRecommendations = (() => {
+    // reuse RiskQueueView deduplication: keep latest recommendation per case_id
+    const latestByCase = new Map<string, DecisionRecommendation>()
+    for (let i = recommendations.length - 1; i >= 0; i -= 1) {
+      const item = recommendations[i]
+      if (!latestByCase.has(item.case_id)) latestByCase.set(item.case_id, item)
+    }
+    const deduped: DecisionRecommendation[] = []
+    for (const item of recommendations) {
+      if (latestByCase.get(item.case_id) === item) deduped.push(item)
+    }
+    return deduped
+  })()
+
   async function handleRunAgents() {
     setAgentResult(await runCaseReview(caseId))
     const queue = await getPriorityQueue()
     setRecommendations(queue.recommendations || [])
   }
 
-  const highRiskPreview = recommendations.filter(item => ['Critical', 'High'].includes(item.priority)).slice(0, 5)
+  const highRiskPreview = dedupedRecommendations.filter(item => ['Critical', 'High'].includes(item.priority)).slice(0, 5)
 
   return (
     <div className="page-stack">

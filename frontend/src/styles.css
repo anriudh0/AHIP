@@ -60,10 +60,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   top: 0;
   width: 304px;
   height: 100vh;
+  /* tightened spacing to avoid vertical scrollbar on 1080p viewports */
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 24px;
+  gap: 16px;
+  padding: 16px;
   background: linear-gradient(180deg, var(--sidebar), var(--sidebar-strong));
   color: #ffffff;
   transition: width var(--transition), padding var(--transition);
@@ -78,8 +79,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 8px 0 4px;
+  gap: 8px;
+  padding: 6px 0 2px;
   text-align: center;
 }
 
@@ -114,7 +115,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 .capability-card {
-  padding: 14px;
+  padding: 10px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.08);
@@ -153,13 +154,13 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 22px;
+  gap: 12px;
 }
 
 .nav-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .nav-group-label {
@@ -175,7 +176,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 44px;
+  min-height: 40px;
   padding: 0 12px;
   border-radius: 12px;
   color: rgba(255, 255, 255, 0.78);
@@ -208,8 +209,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .sidebar-footer {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-top: 16px;
+  gap: 8px;
+  padding-top: 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 

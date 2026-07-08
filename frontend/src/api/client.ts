@@ -55,6 +55,14 @@ export async function getExecutionHistory() {
   return response.json()
 }
 
+export async function getAuditLogs() {
+  const response = await fetch(`${API_BASE_URL}/agents/audit-logs`, {
+    headers: GOVERNANCE_HEADERS,
+  })
+  if (!response.ok) throw new Error('Failed to fetch audit logs')
+  return response.json()
+}
+
 export async function getGovernanceSummary() {
   const response = await fetch(`${API_BASE_URL}/agents/governance-summary`, {
     headers: GOVERNANCE_HEADERS,

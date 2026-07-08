@@ -23,15 +23,32 @@ export function RiskQueueView() {
       .catch(error => setError(error.message))
   }, [])
 
+  const dedupedRecommendations = useMemo(() => {
+    const latestByCase = new Map<string, DecisionRecommendation>()
+    for (let i = recommendations.length - 1; i >= 0; i -= 1) {
+      const item = recommendations[i]
+      if (!latestByCase.has(item.case_id)) {
+        latestByCase.set(item.case_id, item)
+      }
+    }
+    const deduped: DecisionRecommendation[] = []
+    for (const item of recommendations) {
+      if (latestByCase.get(item.case_id) === item) {
+        deduped.push(item)
+      }
+    }
+    return deduped
+  }, [recommendations])
+
   const filteredRecommendations = useMemo(() => {
-    return recommendations.filter(item => {
+    return dedupedRecommendations.filter(item => {
       const matchesRisk = riskFilter === 'All' || item.risk_level === riskFilter
       const matchesPriority = priorityFilter === 'All' || item.priority === priorityFilter
       const matchesStatus = statusFilter === 'All' || operationalStatus(item) === statusFilter
       const matchesCase = item.case_id.toLowerCase().includes(caseSearch.trim().toLowerCase())
       return matchesRisk && matchesPriority && matchesStatus && matchesCase
     })
-  }, [caseSearch, priorityFilter, recommendations, riskFilter, statusFilter])
+  }, [caseSearch, priorityFilter, dedupedRecommendations, riskFilter, statusFilter])
 
   return (
     <div className="page-stack">

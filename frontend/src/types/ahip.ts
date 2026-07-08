@@ -28,6 +28,57 @@ export type PriorityQueueResponse = {
   recommendations: DecisionRecommendation[]
 }
 
+export type AgentOutput = {
+  agent_name: string
+  case_id: string
+  risk_level: string
+  observation: string
+  recommendation: string
+  evidence: string[]
+  confidence: number
+  next_owner?: string | null
+}
+
+export type ConsolidatedCaseOutput = {
+  agent_name: string
+  case_id: string
+  risk_level: string
+  observation: string
+  recommendation: string
+  evidence: string[]
+  confidence: number
+  next_owner?: string | null
+  contributing_agents: string[]
+}
+
+export type SharedMemoryState = {
+  case_id: string
+  agent_sequence: string[]
+  observations: Array<{ agent_name: string; observation: string; evidence: string[] }>
+  risk_levels: string[]
+  recommendations: string[]
+  next_owners: string[]
+  handoffs: Array<{ from_agent: string; risk_level: string; next_owner?: string | null }>
+}
+
+export type WorkflowRunResponse = {
+  case_id: string
+  agent_outputs: AgentOutput[]
+  shared_memory: SharedMemoryState
+  consolidated_output: ConsolidatedCaseOutput
+  summary: string
+}
+
+export type AuditLog = {
+  id: number
+  event_type: string
+  case_id?: string | null
+  actor_role: string
+  actor_name?: string | null
+  details: Record<string, unknown>
+  created_at: string
+}
+
 export type RelationshipNode = {
   id: string
   type: string
