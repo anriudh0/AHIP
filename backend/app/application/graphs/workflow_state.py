@@ -21,6 +21,13 @@ class WorkflowState:
     execution_trace: List[Dict[str, Any]] = field(default_factory=list)
     errors: List[Dict[str, Any]] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
+    # Routing metadata (Stage 3.1)
+    route_flags: Dict[str, Any] = field(default_factory=dict)
+    route_decisions: Dict[str, Any] = field(default_factory=dict)
+    selected_route: Optional[str] = None
+    route_reason: Optional[str] = None
+    executed_path: List[str] = field(default_factory=list)
+    skipped_agents: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         """Return a JSON-serializable dict representation of the state."""
