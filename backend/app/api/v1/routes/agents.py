@@ -37,6 +37,12 @@ def run_graph(request: AgentRunRequest):
         "recommendation": final_state.recommendation,
         "explanation": final_state.explanation,
         "audit_reference": final_state.audit_reference,
+        # Routing metadata (Stage 3.1)
+        "selected_route": final_state.selected_route,
+        "route_reason": final_state.route_reason,
+        "route_flags": final_state.route_flags,
+        "executed_path": final_state.executed_path,
+        "skipped_agents": final_state.skipped_agents,
         "comparison_note": "Produced using stateless graph orchestration.",
     }
 

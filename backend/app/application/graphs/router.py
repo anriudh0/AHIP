@@ -44,11 +44,18 @@ def select_route(state: WorkflowState) -> Tuple[str, str, Dict[str, bool]]:
 
     # Detect missing context
     missing_list = claim_ctx.get("missing_context") if isinstance(claim_ctx.get("missing_context"), list) else []
-    if missing_list:
+    # Consider only missing required entities as missing data (claim, patient, provider).
+    required_missing = set(missing_list) & {"claim", "patient", "provider"}
+    contract_only_missing = False
+    if required_missing:
         flags["has_missing_data"] = True
         flags["missing_items"] = True
+    else:
+        # If only 'contract' is missing, treat as provider contract scenario, not missing data
+        if "contract" in missing_list:
+            contract_only_missing = True
 
-    # Check explicit presence of fields as additional safety
+    # Check explicit presence of fields as additional safety (these indicate missing entities)
     if not claim_ctx.get("claim_id") or claim_ctx.get("claim_status") == "Unknown":
         flags["has_missing_data"] = True
     if not claim_ctx.get("provider_id"):
@@ -59,6 +66,9 @@ def select_route(state: WorkflowState) -> Tuple[str, str, Dict[str, bool]]:
     # Provider contract missing
     contract_status = claim_ctx.get("contract_status")
     if contract_status and isinstance(contract_status, str) and contract_status.lower() == "missing":
+        flags["provider_contract_missing"] = True
+    # Also treat explicit contract-only missing context as provider_contract signal
+    if contract_only_missing:
         flags["provider_contract_missing"] = True
 
     # High value check
@@ -73,7 +83,8 @@ def select_route(state: WorkflowState) -> Tuple[str, str, Dict[str, bool]]:
     # Decide route by priority
     if flags["has_missing_data"]:
         selected = "missing_data"
-        reason = f"Missing required context: {missing_list or 'unknown'}"
+        # prefer reporting concrete required entities if present
+        reason = f"Missing required context: {list(required_missing) or missing_list or 'unknown'}"
     elif flags["provider_contract_missing"]:
         selected = "provider_contract"
         reason = "Provider contract is missing or incomplete"
