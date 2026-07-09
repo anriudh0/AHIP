@@ -16,6 +16,7 @@ README3.txt
 README3.md
 brief.md
 desktop.ini
+test_local_db.sqlite
 
 # Ignore generated and workspace assets
 .agents/
