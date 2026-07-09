@@ -1,0 +1,2013 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AHIP | Stage 4 LLM Agent Integration</title>
+  <style>
+    /* =========================================================
+       Design Tokens
+    ========================================================= */
+    :root{
+      --bg:#050816;
+      --surface:#0F172A;
+      --card:#111827;
+      --border:rgba(255,255,255,.08);
+      --primary:#38BDF8;
+      --secondary:#8B5CF6;
+      --success:#22C55E;
+      --warning:#F59E0B;
+      --danger:#EF4444;
+      --text:#F8FAFC;
+      --muted:#CBD5E1;
+      --muted-2:#94A3B8;
+      --shadow:0 18px 50px rgba(2,6,23,.38);
+      --shadow-soft:0 12px 24px rgba(2,6,23,.22);
+      --radius:24px;
+      --radius-sm:18px;
+      --max:1200px;
+      --nav-w:240px;
+      --ease:cubic-bezier(.2,.8,.2,1);
+    }
+
+    /* =========================================================
+       Base / Reset
+    ========================================================= */
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      background:
+        radial-gradient(1000px 600px at 18% 12%, rgba(56,189,248,.12), transparent 35%),
+        radial-gradient(900px 600px at 82% 22%, rgba(139,92,246,.10), transparent 35%),
+        radial-gradient(700px 500px at 50% 92%, rgba(34,197,94,.08), transparent 32%),
+        var(--bg);
+      color:var(--text);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size:16.5px;
+      line-height:1.58;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+      overflow-x:hidden;
+    }
+
+    ::selection{background:rgba(56,189,248,.22);color:var(--text)}
+
+    button, input, textarea{font:inherit}
+    button{cursor:pointer}
+
+    :focus-visible{
+      outline:2px solid rgba(56,189,248,.95);
+      outline-offset:3px;
+      border-radius:12px;
+    }
+
+    .screen-reader-only{
+      position:absolute;
+      width:1px;height:1px;
+      padding:0;margin:-1px;overflow:hidden;
+      clip:rect(0,0,0,0);white-space:nowrap;border:0;
+    }
+
+    /* =========================================================
+       Ambient Background
+    ========================================================= */
+    .ambient{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:-3;
+      overflow:hidden;
+    }
+    .grain{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:-2;
+      opacity:.045;
+      mix-blend-mode:soft-light;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,.18) 0 1px, transparent 1.2px),
+        radial-gradient(circle at 80% 40%, rgba(255,255,255,.14) 0 1px, transparent 1.2px),
+        radial-gradient(circle at 50% 75%, rgba(255,255,255,.10) 0 1px, transparent 1.2px);
+      background-size:140px 140px, 180px 180px, 240px 240px;
+      animation:grainShift 18s linear infinite;
+      transform:translate3d(0,0,0);
+    }
+    @keyframes grainShift{
+      0%{background-position:0 0, 0 0, 0 0}
+      100%{background-position:140px 140px, -180px 120px, 90px -140px}
+    }
+    .orb{
+      position:absolute;
+      border-radius:999px;
+      filter:blur(48px);
+      opacity:.35;
+      transform:translate3d(0,0,0);
+      animation:floatOrb 18s var(--ease) infinite;
+    }
+    .orb.one{width:340px;height:340px;left:-80px;top:40px;background:rgba(56,189,248,.18)}
+    .orb.two{width:280px;height:280px;right:8%;top:10%;background:rgba(139,92,246,.16);animation-duration:22s}
+    .orb.three{width:260px;height:260px;left:36%;bottom:-110px;background:rgba(34,197,94,.11);animation-duration:24s}
+    @keyframes floatOrb{
+      0%,100%{transform:translate3d(0,0,0) scale(1)}
+      50%{transform:translate3d(0,-26px,0) scale(1.08)}
+    }
+
+    /* =========================================================
+       Navigation
+    ========================================================= */
+    .nav-shell{
+      position:fixed;
+      top:28px;
+      left:24px;
+      bottom:28px;
+      width:var(--nav-w);
+      z-index:50;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+    .nav-card{
+      background:rgba(15,23,42,.78);
+      backdrop-filter:blur(18px);
+      border:1px solid var(--border);
+      border-radius:22px;
+      box-shadow:var(--shadow-soft);
+      padding:16px;
+    }
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .brand strong{font-size:15px;letter-spacing:.08em;text-transform:uppercase}
+    .brand span{font-size:12px;color:var(--muted-2)}
+    .progress-wrap{display:flex;gap:12px;align-items:stretch}
+    .progress-rail{
+      width:8px;
+      border-radius:999px;
+      background:rgba(255,255,255,.05);
+      overflow:hidden;
+      flex:0 0 8px;
+    }
+    .progress-fill{
+      width:100%;
+      height:12%;
+      border-radius:inherit;
+      background:linear-gradient(180deg, var(--primary), var(--secondary));
+      box-shadow:0 0 20px rgba(56,189,248,.35);
+      transform-origin:top;
+      transition:height .28s var(--ease);
+    }
+    .nav-list{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    }
+    .nav-link{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      width:100%;
+      border:1px solid transparent;
+      background:transparent;
+      color:var(--muted);
+      padding:10px 10px;
+      border-radius:14px;
+      text-align:left;
+      transition:transform .25s var(--ease), background .25s var(--ease), border-color .25s var(--ease), color .25s var(--ease);
+    }
+    .nav-link:hover{transform:translateX(3px);color:var(--text);background:rgba(255,255,255,.03)}
+    .nav-link .dot{
+      width:8px;height:8px;border-radius:50%;
+      background:rgba(255,255,255,.18);
+      box-shadow:0 0 0 5px transparent;
+      transition:background .25s var(--ease), box-shadow .25s var(--ease);
+    }
+    .nav-link.active{
+      color:var(--text);
+      background:rgba(56,189,248,.08);
+      border-color:rgba(56,189,248,.18);
+    }
+    .nav-link.active .dot{
+      background:var(--primary);
+      box-shadow:0 0 0 5px rgba(56,189,248,.12);
+    }
+    .nav-hint{
+      margin-top:auto;
+      color:var(--muted-2);
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    /* =========================================================
+       Deck Layout
+    ========================================================= */
+    .deck{
+      width:min(var(--max), calc(100vw - var(--nav-w) - 96px));
+      margin-left:calc(var(--nav-w) + 56px);
+      padding:28px 0 48px;
+    }
+    .scene{
+      position:relative;
+      margin:0 0 26px;
+      padding:42px;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      backdrop-filter:blur(12px);
+    }
+    .scene::before{
+      content:"";
+      position:absolute;
+      left:36px;
+      right:36px;
+      top:0;
+      height:1px;
+      background:linear-gradient(90deg, transparent, rgba(56,189,248,.25), rgba(139,92,246,.18), transparent);
+      opacity:.8;
+    }
+    .scene.reveal{opacity:0;transform:translateY(18px) scale(.99);transition:opacity .8s var(--ease), transform .8s var(--ease)}
+    .scene.in-view{opacity:1;transform:none}
+    .scene-head{
+      display:flex;
+      justify-content:space-between;
+      gap:20px;
+      align-items:flex-end;
+      margin-bottom:28px;
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.02em;
+      color:var(--primary);
+      border:1px solid rgba(56,189,248,.16);
+      background:rgba(56,189,248,.06);
+    }
+    .scene h2{
+      margin:12px 0 12px;
+      font-size:clamp(32px, 3.2vw, 48px);
+      line-height:1.02;
+      letter-spacing:-.04em;
+    }
+    .scene p.sub{
+      margin:0;
+      max-width:720px;
+      color:var(--muted);
+      font-size:16.5px;
+      line-height:1.75;
+    }
+    .scene-note{
+      color:var(--muted-2);
+      font-size:13px;
+      line-height:1.55;
+      max-width:280px;
+      text-align:right;
+    }
+
+    /* =========================================================
+       Hero
+    ========================================================= */
+    .hero{
+      min-height:100svh;
+      display:grid;
+      grid-template-columns:minmax(0,1.3fr) minmax(320px,.9fr);
+      align-items:center;
+      padding:46px;
+      border-radius:30px;
+      border:1px solid rgba(255,255,255,.08);
+      background:
+        radial-gradient(900px 500px at 18% 24%, rgba(56,189,248,.12), transparent 45%),
+        radial-gradient(700px 420px at 86% 30%, rgba(139,92,246,.12), transparent 42%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+      box-shadow:var(--shadow);
+    }
+    .hero-canvas{
+      position:absolute;
+      inset:0;
+      width:100%;height:100%;
+      z-index:0;
+      pointer-events:none;
+      opacity:.95;
+    }
+    .hero-copy,
+    .hero-side{position:relative;z-index:1}
+    .hero-copy{max-width:760px}
+    .hero-badge-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.02em;
+    }
+    .badge.primary{color:var(--text);border-color:rgba(56,189,248,.18);background:rgba(56,189,248,.08)}
+    .hero-title{
+      margin:0;
+      font-size:clamp(68px, 12vw, 128px);
+      line-height:.9;
+      letter-spacing:-.08em;
+      text-wrap:balance;
+      transform-origin:left center;
+      animation:titleBreath 12s ease-in-out infinite;
+    }
+    @keyframes titleBreath{
+      0%,100%{transform:translateY(0) scale(1);text-shadow:0 0 0 rgba(56,189,248,0)}
+      50%{transform:translateY(-1px) scale(1.012);text-shadow:0 0 18px rgba(56,189,248,.06)}
+    }
+    .hero-title .glow-text{
+      background:linear-gradient(90deg, #F8FAFC 0%, #CFFAFE 30%, #8B5CF6 88%);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      text-shadow:0 0 18px rgba(56,189,248,.08);
+    }
+    .hero-subtitle{
+      margin:18px 0 0;
+      max-width:760px;
+      color:var(--muted);
+      font-size:clamp(18px, 2vw, 24px);
+      line-height:1.65;
+      letter-spacing:-.02em;
+    }
+    .hero-summary{
+      margin-top:28px;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:12px;
+    }
+    .summary-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:13px 15px;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      font-size:13.5px;
+      font-weight:700;
+      box-shadow:0 10px 18px rgba(2,6,23,.16);
+    }
+    .summary-arrow{color:var(--muted-2);font-weight:800}
+    .hero-actions{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      margin-top:32px;
+      flex-wrap:wrap;
+    }
+    .primary-btn,
+    .ghost-btn{
+      border:none;
+      border-radius:999px;
+      padding:15px 20px;
+      font-weight:800;
+      letter-spacing:.01em;
+      transition:transform .25s var(--ease), box-shadow .25s var(--ease), background .25s var(--ease), border-color .25s var(--ease), filter .25s var(--ease);
+    }
+    .primary-btn{
+      color:#03111f;
+      background:linear-gradient(135deg, #BAE6FD, #38BDF8 58%, #8B5CF6 100%);
+      box-shadow:0 14px 24px rgba(56,189,248,.18);
+    }
+    .ghost-btn{
+      color:var(--text);
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--border);
+    }
+    .primary-btn:hover,.ghost-btn:hover{transform:translateY(-2px);box-shadow:0 16px 24px rgba(2,6,23,.18);filter:saturate(1.05)}
+    .hero-side{
+      display:grid;
+      gap:16px;
+    }
+    .hero-stat{
+      position:relative;
+      padding:20px;
+      border-radius:22px;
+      border:1px solid var(--border);
+      background:rgba(15,23,42,.62);
+      backdrop-filter:blur(18px);
+      overflow:hidden;
+      box-shadow:var(--shadow-soft);
+    }
+    .hero-stat strong{display:block;font-size:19px;letter-spacing:-.02em;margin-bottom:8px}
+    .hero-stat span{color:var(--muted);font-size:13.5px;line-height:1.6}
+    .hero-stat::before{
+      content:"";
+      position:absolute;
+      inset:auto -20% -30% auto;
+      width:160px;height:160px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(56,189,248,.16), transparent 70%);
+      filter:blur(8px);
+      pointer-events:none;
+    }
+    .hero-stack{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:14px;
+      margin-top:8px;
+    }
+    .stack-pill{
+      min-height:92px;
+      padding:16px;
+      border-radius:18px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .stack-pill b{color:var(--text);font-size:13px}
+    .stack-pill em{font-style:normal;font-size:12px;color:var(--muted-2)}
+
+    /* =========================================================
+       Generic Layout Blocks
+    ========================================================= */
+    .columns-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .columns-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .columns-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+    .cards{display:grid;gap:18px}
+    .card{
+      position:relative;
+      padding:22px;
+      border-radius:22px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      box-shadow:var(--shadow-soft);
+      overflow:hidden;
+      transform:translate3d(0,0,0);
+      transition:transform .28s var(--ease), border-color .28s var(--ease), box-shadow .28s var(--ease), background .28s var(--ease), opacity .28s var(--ease);
+    }
+    .card:hover{transform:translateY(-4px) rotateX(.2deg) rotateY(.2deg) scale(1.006);border-color:rgba(56,189,248,.16);box-shadow:0 18px 34px rgba(2,6,23,.28)}
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:radial-gradient(240px 160px at var(--mx,50%) var(--my,50%), rgba(56,189,248,.13), transparent 58%);
+      opacity:0;
+      transition:opacity .22s var(--ease);
+      pointer-events:none;
+    }
+    .card:hover::before{opacity:1}
+    .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .card h3{margin:0;font-size:18px;letter-spacing:-.03em}
+    .card p{margin:0;color:var(--muted);line-height:1.72;font-size:14.5px}
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:700;
+    }
+    .tag.green{color:#DCFCE7;border-color:rgba(34,197,94,.2);background:rgba(34,197,94,.08)}
+    .tag.blue{color:#DBF4FF;border-color:rgba(56,189,248,.2);background:rgba(56,189,248,.08)}
+    .tag.purple{color:#EDE9FE;border-color:rgba(139,92,246,.2);background:rgba(139,92,246,.08)}
+    .tag.orange{color:#FFEDD5;border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.08)}
+
+    .subtle-list{
+      display:grid;
+      gap:10px;
+      margin:14px 0 0;
+      padding:0;
+      list-style:none;
+    }
+    .subtle-list li{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.55;
+    }
+    .subtle-list li::before{
+      content:"";
+      width:8px;height:8px;border-radius:50%;
+      margin-top:8px;
+      background:linear-gradient(180deg, var(--primary), var(--secondary));
+      box-shadow:0 0 0 4px rgba(56,189,248,.08);
+      flex:0 0 8px;
+    }
+
+    /* =========================================================
+       Story Flow / Solutions
+    ========================================================= */
+    .flow-stack{
+      display:grid;
+      gap:12px;
+      margin-top:22px;
+    }
+    .flow-row{
+      display:grid;
+      grid-template-columns:1fr 24px;
+      align-items:center;
+      gap:14px;
+    }
+    .flow-node{
+      padding:16px 18px;
+      border-radius:18px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      transition:transform .25s var(--ease), border-color .25s var(--ease), background .25s var(--ease), box-shadow .25s var(--ease), filter .25s var(--ease);
+    }
+    .flow-node small{display:block;color:var(--muted-2);font-size:12px;margin-top:4px}
+    .flow-node.dim{opacity:.42;filter:saturate(.4)}
+    .flow-node.active{
+      border-color:rgba(56,189,248,.24);
+      background:rgba(56,189,248,.08);
+      box-shadow:0 0 0 1px rgba(56,189,248,.08), 0 10px 28px rgba(56,189,248,.08);
+    }
+    .flow-node.core.active{border-color:rgba(139,92,246,.24);background:rgba(139,92,246,.10)}
+    .arrow-col{
+      width:24px;
+      display:flex;
+      justify-content:center;
+      color:var(--muted-2);
+      font-weight:900;
+    }
+    .big-emphasis{
+      font-size:clamp(26px, 3vw, 34px);
+      line-height:1.05;
+      letter-spacing:-.04em;
+      margin:0 0 10px;
+    }
+
+    /* =========================================================
+       Architecture Explorer
+    ========================================================= */
+    .explorer-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);
+      gap:16px;
+      align-items:start;
+    }
+    .node-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+    .node-btn{
+      width:100%;
+      text-align:left;
+      padding:16px;
+      border-radius:18px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      transition:transform .25s var(--ease), border-color .25s var(--ease), background .25s var(--ease), box-shadow .25s var(--ease);
+    }
+    .node-btn:hover{transform:translateY(-3px);border-color:rgba(56,189,248,.18)}
+    .node-btn.active{background:rgba(56,189,248,.08);border-color:rgba(56,189,248,.24);box-shadow:0 10px 28px rgba(56,189,248,.08)}
+    .node-btn strong{display:block;font-size:15px;margin-bottom:6px}
+    .node-btn span{display:block;color:var(--muted-2);font-size:12px;line-height:1.5}
+    .panel{position:sticky;top:24px}
+    .panel-card{
+      min-height:100%;
+      border-radius:22px;
+      border:1px solid rgba(56,189,248,.16);
+      background:linear-gradient(180deg, rgba(15,23,42,.9), rgba(17,24,39,.95));
+      box-shadow:var(--shadow);
+      padding:22px;
+    }
+    .panel-card h3{margin:0 0 10px;font-size:24px;letter-spacing:-.04em}
+    .panel-grid{display:grid;gap:12px;margin-top:16px}
+    .panel-item{
+      padding:14px;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+    }
+    .panel-item b{display:block;font-size:12px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+    .panel-item p{margin:0;color:var(--text);line-height:1.6;font-size:14px}
+
+    /* =========================================================
+       Comparison
+    ========================================================= */
+    .compare-wrap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
+    .compare-side{
+      padding:22px;
+      border-radius:24px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      box-shadow:var(--shadow-soft);
+      min-height:320px;
+    }
+    .compare-side.stage3{background:linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.015))}
+    .compare-side.stage4{border-color:rgba(56,189,248,.18);background:linear-gradient(180deg, rgba(56,189,248,.08), rgba(255,255,255,.015))}
+    .compare-grid{display:grid;gap:12px;margin-top:18px}
+    .compare-card{padding:16px;border-radius:18px;border:1px solid var(--border);background:rgba(15,23,42,.7)}
+    .compare-card strong{display:block;margin-bottom:6px;font-size:14px}
+    .compare-card span{display:block;color:var(--muted);font-size:13px;line-height:1.55}
+
+    /* =========================================================
+       How It Works / Workflow Track
+    ========================================================= */
+    .workflow-shell{position:relative;padding:18px 8px 14px}
+    .workflow-track{
+      position:relative;
+      display:grid;
+      gap:12px;
+      padding:10px 0 10px 56px;
+    }
+    .workflow-track::before{
+      content:"";
+      position:absolute;
+      left:25px;
+      top:10px;
+      bottom:10px;
+      width:2px;
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(56,189,248,.28), rgba(255,255,255,.08));
+      border-radius:999px;
+    }
+    .workflow-node{
+      position:relative;
+      padding:16px 18px 16px 20px;
+      border-radius:18px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      min-height:76px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      transition:transform .25s var(--ease), border-color .25s var(--ease), background .25s var(--ease), box-shadow .25s var(--ease);
+    }
+    .workflow-node::before{
+      content:"";
+      position:absolute;
+      left:-40px;
+      top:50%;
+      width:16px;height:16px;
+      transform:translateY(-50%);
+      border-radius:50%;
+      background:rgba(255,255,255,.2);
+      box-shadow:0 0 0 6px rgba(255,255,255,.04);
+      transition:background .25s var(--ease), box-shadow .25s var(--ease), transform .25s var(--ease);
+    }
+    .workflow-node.active{
+      border-color:rgba(56,189,248,.24);
+      background:rgba(56,189,248,.08);
+      box-shadow:0 0 0 1px rgba(56,189,248,.06), 0 10px 26px rgba(56,189,248,.08);
+      transform:translateX(4px);
+    }
+    .workflow-node.active::before{
+      background:var(--primary);
+      box-shadow:0 0 0 8px rgba(56,189,248,.10), 0 0 24px rgba(56,189,248,.35);
+      transform:translateY(-50%) scale(1.06);
+    }
+    .workflow-node.core.active{background:rgba(139,92,246,.10);border-color:rgba(139,92,246,.24)}
+    .workflow-node.core.active::before{background:var(--secondary);box-shadow:0 0 0 8px rgba(139,92,246,.10), 0 0 24px rgba(139,92,246,.35)}
+    .workflow-node strong{font-size:15px;display:block}
+    .workflow-node span{display:block;color:var(--muted-2);font-size:12px;line-height:1.45;margin-top:4px}
+    .packet{
+      position:absolute;
+      left:18px;top:22px;
+      width:16px;height:16px;border-radius:50%;
+      background:radial-gradient(circle, #fff 0%, #BAE6FD 35%, #38BDF8 60%, rgba(56,189,248,0) 72%);
+      box-shadow:0 0 0 8px rgba(56,189,248,.12), 0 0 28px rgba(56,189,248,.42);
+      pointer-events:none;
+      opacity:0;
+      transform:translate3d(0,0,0);
+    }
+
+    /* =========================================================
+       Fallback Demo
+    ========================================================= */
+    .fallback-shell{
+      position:relative;
+      overflow:hidden;
+      border-radius:28px;
+      border:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.012));
+      box-shadow:var(--shadow);
+      padding:24px;
+      transition:background .4s var(--ease), box-shadow .4s var(--ease), border-color .4s var(--ease);
+    }
+    .fallback-shell.orange{
+      border-color:rgba(245,158,11,.26);
+      box-shadow:0 0 0 1px rgba(245,158,11,.12), 0 24px 48px rgba(245,158,11,.08);
+      background:linear-gradient(180deg, rgba(245,158,11,.16), rgba(255,255,255,.012));
+    }
+    .fallback-shell.green{
+      border-color:rgba(34,197,94,.24);
+      background:linear-gradient(180deg, rgba(34,197,94,.10), rgba(255,255,255,.012));
+      box-shadow:0 0 0 1px rgba(34,197,94,.10), 0 22px 40px rgba(34,197,94,.06);
+    }
+    .failure-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .failure-chip{
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:700;
+      transition:transform .25s var(--ease), background .25s var(--ease), border-color .25s var(--ease), color .25s var(--ease);
+    }
+    .failure-chip.active{color:#FFF7ED;border-color:rgba(245,158,11,.28);background:rgba(245,158,11,.12);transform:translateY(-2px)}
+    .fallback-status{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(260px,.9fr);
+      gap:16px;
+      align-items:center;
+      margin-top:18px;
+    }
+    .status-card{
+      border-radius:22px;
+      border:1px solid var(--border);
+      background:rgba(15,23,42,.72);
+      padding:20px;
+    }
+    .status-card h3{margin:0 0 10px;font-size:22px;letter-spacing:-.04em}
+    .status-stack{display:grid;gap:10px;margin-top:12px}
+    .status-step{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+      border-radius:16px;border:1px solid var(--border);padding:12px 14px;background:rgba(255,255,255,.03);
+    }
+    .status-step small{color:var(--muted-2)}
+    .status-step.on{border-color:rgba(34,197,94,.24);background:rgba(34,197,94,.10)}
+    .status-step.warn{border-color:rgba(245,158,11,.24);background:rgba(245,158,11,.10)}
+
+    /* =========================================================
+       Implementation / Expanders
+    ========================================================= */
+    .expand-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .expand-card button{
+      width:100%;
+      background:transparent;
+      border:none;
+      padding:0;
+      color:inherit;
+      text-align:left;
+    }
+    .expand-card .title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+    .expand-card .chev{transition:transform .28s var(--ease);color:var(--muted-2);font-weight:900}
+    .expand-card.open .chev{transform:rotate(180deg)}
+    .expand-details{
+      margin-top:12px;
+      max-height:0;
+      opacity:0;
+      transform:translateY(-8px);
+      overflow:hidden;
+      transition:max-height .34s var(--ease), opacity .24s var(--ease), transform .24s var(--ease);
+    }
+    .expand-card.open .expand-details{
+      max-height:240px;
+      opacity:1;
+      transform:none;
+    }
+
+    /* =========================================================
+       Files Tree
+    ========================================================= */
+    .tree{
+      display:grid;
+      gap:10px;
+      padding:8px 0 0;
+    }
+    .tree-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      transition:transform .25s var(--ease), border-color .25s var(--ease), background .25s var(--ease);
+    }
+    .tree-row:hover{transform:translateX(3px);border-color:rgba(56,189,248,.16);background:rgba(56,189,248,.05)}
+    .tree-row strong{color:var(--text)}
+    .tree-row .indent{width:14px;height:1px;background:rgba(255,255,255,.14);flex:0 0 14px}
+    .tree-row .stem{width:1px;height:18px;background:rgba(255,255,255,.10);margin-left:6px}
+
+    /* =========================================================
+       Key Features / Stats / Timeline / Demo / Flashcards
+    ========================================================= */
+    .feature-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+    .feature{
+      min-height:156px;
+      padding:18px;
+      border-radius:20px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      transition:transform .25s var(--ease), border-color .25s var(--ease), background .25s var(--ease);
+    }
+    .feature:hover{transform:translateY(-3px);border-color:rgba(56,189,248,.18);background:rgba(56,189,248,.05)}
+    .feature strong{display:block;font-size:16px;margin-bottom:10px}
+    .feature span{color:var(--muted);font-size:13px;line-height:1.6}
+
+    .milestones{display:grid;gap:12px;margin-top:14px}
+    .milestone{
+      display:grid;
+      grid-template-columns:24px minmax(0,1fr);
+      gap:12px;
+      align-items:flex-start;
+      padding:14px 0;
+    }
+    .milestone .tick{
+      width:24px;height:24px;border-radius:50%;
+      display:grid;place-items:center;
+      background:rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.24);
+      color:#DCFCE7;
+      font-size:13px;font-weight:900;
+      box-shadow:0 0 0 6px rgba(34,197,94,.05);
+    }
+    .milestone strong{display:block;font-size:15px;margin-bottom:6px}
+    .milestone span{color:var(--muted);font-size:13px;line-height:1.55}
+
+    .demo-steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-top:18px}
+    .demo-step{
+      padding:14px 12px;
+      border-radius:18px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      text-align:center;
+      transition:transform .25s var(--ease), border-color .25s var(--ease), background .25s var(--ease), color .25s var(--ease);
+    }
+    .demo-step.active{color:var(--text);background:rgba(56,189,248,.08);border-color:rgba(56,189,248,.20);transform:translateY(-3px)}
+    .demo-step b{display:block;margin-bottom:6px;color:inherit}
+
+    .flash-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+    .flashcard{
+      perspective:1200px;
+      min-height:188px;
+      outline:none;
+      border:none;
+      background:none;
+      padding:0;
+      text-align:left;
+    }
+    .flashcard-inner{
+      position:relative;
+      width:100%;height:100%;
+      transform-style:preserve-3d;
+      transition:transform .55s var(--ease);
+    }
+    .flashcard.flipped .flashcard-inner{transform:rotateY(180deg)}
+    .flash-face{
+      position:absolute;inset:0;
+      backface-visibility:hidden;
+      border-radius:20px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      padding:18px;
+      box-shadow:var(--shadow-soft);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .flash-back{transform:rotateY(180deg);background:linear-gradient(180deg, rgba(56,189,248,.08), rgba(255,255,255,.03))}
+    .flash-face strong{font-size:16px;line-height:1.4}
+    .flash-face span{color:var(--muted);font-size:13px;line-height:1.6}
+
+    .checklist{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .check-item{
+      display:flex;align-items:center;gap:12px;
+      padding:14px 16px;border-radius:16px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      font-weight:700;
+    }
+    .check-item .mark{
+      width:22px;height:22px;border-radius:50%;
+      display:grid;place-items:center;
+      color:#052014;
+      background:linear-gradient(135deg, #A7F3D0, #22C55E);
+      font-size:12px;font-weight:900;
+      flex:0 0 22px;
+    }
+
+    .final-screen{
+      min-height:72svh;
+      display:grid;
+      align-items:center;
+      justify-items:start;
+      gap:18px;
+    }
+    .final-screen h2{
+      font-size:clamp(44px, 6vw, 82px);
+      line-height:.94;
+      max-width:860px;
+      margin:0;
+    }
+    .final-screen p{margin:0;color:var(--muted);max-width:760px;font-size:18px;line-height:1.7}
+    .final-meta{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px}
+    .meta-pill{
+      padding:12px 14px;border-radius:999px;border:1px solid var(--border);
+      background:rgba(255,255,255,.03);color:var(--text);font-size:13px;font-weight:700;
+    }
+
+    footer{
+      display:flex;justify-content:space-between;gap:18px;align-items:flex-end;
+      padding:8px 2px 0;
+      color:var(--muted-2);
+    }
+    footer strong{display:block;color:var(--text);margin-bottom:6px}
+
+    /* =========================================================
+       Hero Section Animations
+    ========================================================= */
+    .hero-float{animation:drift 6.5s var(--ease) infinite}
+    @keyframes drift{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-8px,0)}}
+
+    /* =========================================================
+       Responsive
+    ========================================================= */
+    @media (max-width:1180px){
+      .deck{width:calc(100vw - 36px);margin-left:18px;padding-top:24px}
+      .nav-shell{position:sticky;top:16px;left:auto;bottom:auto;width:auto;margin:12px 18px 0;height:auto}
+      .nav-card{display:flex;align-items:center;gap:16px}
+      .nav-list{display:flex;flex-direction:row;flex-wrap:wrap}
+      .nav-link{padding:8px 10px}
+      .progress-wrap{display:none}
+      .nav-hint{display:none}
+      .hero{grid-template-columns:1fr;min-height:auto}
+      .panel{position:static}
+    }
+    @media (max-width:920px){
+      .scene{padding:24px}
+      .scene-head{flex-direction:column;align-items:flex-start}
+      .scene-note{text-align:left;max-width:none}
+      .columns-2,.columns-3,.columns-4,.explorer-grid,.compare-wrap,.fallback-status,.expand-grid,.feature-grid,.flash-grid,.checklist,.demo-steps{grid-template-columns:1fr}
+      .hero-stack{grid-template-columns:1fr}
+      .node-grid{grid-template-columns:1fr}
+      .workflow-track{padding-left:46px}
+      .workflow-track::before{left:22px}
+      .workflow-node::before{left:-32px}
+      .nav-shell{position:sticky;top:10px}
+    }
+    @media (max-width:620px){
+      .deck{width:100%;margin-left:0;padding-top:14px}
+      .nav-shell{margin:10px 10px 0;left:0;top:0}
+      .nav-card{padding:12px;border-radius:18px}
+      .hero{padding:22px;border-radius:24px}
+      .scene{padding:18px;border-radius:22px}
+      .hero-title{font-size:clamp(52px, 18vw, 86px)}
+      .hero-subtitle{font-size:17px}
+      .primary-btn,.ghost-btn{width:100%;justify-content:center}
+      .hero-actions{flex-direction:column;align-items:stretch}
+      .summary-chip{width:100%;justify-content:space-between}
+      footer{flex-direction:column;align-items:flex-start}
+    }
+
+    /* =========================================================
+       Reduced Motion
+    ========================================================= */
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      *,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important}
+      .hero-canvas{display:none}
+      .orb{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true">
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="orb three"></div>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <nav class="nav-shell" aria-label="Presentation navigation">
+    <div class="nav-card">
+      <div class="brand">
+        <strong>AHIP</strong>
+        <span>Interactive presentation</span>
+      </div>
+      <div class="progress-wrap" aria-hidden="true">
+        <div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+      <ul class="nav-list" id="navList">
+        <li><button class="nav-link active" data-target="hero"><span class="dot"></span>Hero</button></li>
+        <li><button class="nav-link" data-target="problem"><span class="dot"></span>The Problem</button></li>
+        <li><button class="nav-link" data-target="solution"><span class="dot"></span>The Solution</button></li>
+        <li><button class="nav-link" data-target="explorer"><span class="dot"></span>Architecture Explorer</button></li>
+        <li><button class="nav-link" data-target="compare"><span class="dot"></span>Before vs After</button></li>
+        <li><button class="nav-link" data-target="works"><span class="dot"></span>How It Works</button></li>
+        <li><button class="nav-link" data-target="fallback"><span class="dot"></span>Fallback</button></li>
+        <li><button class="nav-link" data-target="implementation"><span class="dot"></span>Implementation</button></li>
+        <li><button class="nav-link" data-target="files"><span class="dot"></span>Real Files</button></li>
+        <li><button class="nav-link" data-target="features"><span class="dot"></span>Key Features</button></li>
+        <li><button class="nav-link" data-target="learned"><span class="dot"></span>What I Learned</button></li>
+        <li><button class="nav-link" data-target="demo"><span class="dot"></span>Demo Script</button></li>
+        <li><button class="nav-link" data-target="flashcards"><span class="dot"></span>Interview Flashcards</button></li>
+        <li><button class="nav-link" data-target="recap"><span class="dot"></span>Quick Recap</button></li>
+        <li><button class="nav-link" data-target="final"><span class="dot"></span>Final Screen</button></li>
+      </ul>
+      <div class="nav-hint">Use the navigation to present the story in sequence. Press F11 for full-screen mode.</div>
+    </div>
+  </nav>
+
+  <main class="deck" id="deck">
+    <!-- =====================================================
+         Hero
+    ====================================================== -->
+    <section class="scene hero reveal" id="hero" data-title="Hero">
+      <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
+      <div class="hero-copy">
+        <div class="hero-badge-row">
+          <span class="badge primary">Stage 4 · LLM Agent Integration</span>
+          <span class="badge">FastAPI</span>
+          <span class="badge">LangGraph</span>
+          <span class="badge">Deterministic Core</span>
+        </div>
+        <h1 class="hero-title"><span class="glow-text">AHIP</span></h1>
+        <p class="hero-subtitle">Agentic Healthcare Intelligence Platform for claims review. Deterministic agents make the decisions. The LLM only improves the Consolidator narrative.</p>
+
+        <div class="hero-summary" aria-label="Claim flow summary">
+          <span class="summary-chip">Healthcare Claims</span>
+          <span class="summary-arrow">↓</span>
+          <span class="summary-chip">Deterministic Analysis</span>
+          <span class="summary-arrow">↓</span>
+          <span class="summary-chip">LangGraph Orchestration</span>
+          <span class="summary-arrow">↓</span>
+          <span class="summary-chip">LLM-Assisted Consolidation</span>
+          <span class="summary-arrow">↓</span>
+          <span class="summary-chip">Auditable Recommendation</span>
+        </div>
+
+        <div class="hero-actions">
+          <button class="primary-btn" id="beginStory">Begin Story</button>
+          <button class="ghost-btn" data-scroll="explorer">Explore Architecture</button>
+        </div>
+      </div>
+
+      <aside class="hero-side">
+        <div class="hero-stat hero-float">
+          <strong>What AHIP is</strong>
+          <span>A healthcare claims workflow that keeps routing, risk scoring, and audit deterministic while using an LLM only for the final explanation.</span>
+        </div>
+        <div class="hero-stat hero-float" style="animation-delay:.35s">
+          <strong>Why it matters</strong>
+          <span>Teams get correct decisions, consistent policy enforcement, and cleaner recommendations without turning the system into a chatbot.</span>
+        </div>
+        <div class="hero-stack">
+          <div class="stack-pill"><b>React</b><em>Frontend presentation layer</em></div>
+          <div class="stack-pill"><b>SQLite / PostgreSQL</b><em>Workflow data store</em></div>
+          <div class="stack-pill"><b>Pydantic</b><em>Structured validation</em></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- =====================================================
+         Problem
+    ====================================================== -->
+    <section class="scene reveal" id="problem" data-title="The Problem">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">The Problem</span>
+          <h2>Before Stage 4, the workflow was correct but explanations were static.</h2>
+        </div>
+        <div class="scene-note">The system already produced deterministic outcomes, but the recommendation layer needed a more readable narrative without changing business logic.</div>
+      </div>
+
+      <div class="columns-2">
+        <div class="card">
+          <div class="card-head"><h3>Existing flow</h3><span class="tag">Deterministic</span></div>
+          <div class="flow-stack">
+            <div class="flow-node dim"><div><strong>Claim</strong><small>Incoming case data and claim context</small></div></div>
+            <div class="flow-row"><div class="flow-node dim"><div><strong>Agents</strong><small>Specialist rule-based agents</small></div></div><div class="arrow-col">↓</div></div>
+            <div class="flow-row"><div class="flow-node dim"><div><strong>Consolidator</strong><small>Combined evidence and created the recommendation</small></div></div><div class="arrow-col">↓</div></div>
+            <div class="flow-row"><div class="flow-node dim"><div><strong>Recommendation</strong><small>Correct, but the wording was static</small></div></div><div class="arrow-col">↓</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Why it felt limited</h3><span class="tag orange">Presentation gap</span></div>
+          <ul class="subtle-list">
+            <li>Deterministic outputs were reliable, but they were not easy to present in a single clean narrative.</li>
+            <li>The recommendation needed better explanation without allowing the LLM to alter routing, scoring, or audit.</li>
+            <li>The system needed a way to stay auditable while sounding more natural to human reviewers.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Solution
+    ====================================================== -->
+    <section class="scene reveal" id="solution" data-title="The Solution">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">The Solution</span>
+          <h2>Only the Consolidator lights up. Everything else stays deterministic.</h2>
+        </div>
+        <div class="scene-note">The LLM joins after safe context is built, then validation and fallback protect the workflow.</div>
+      </div>
+
+      <p class="sub">Stage 4 adds one controlled LLM enhancement point instead of turning the workflow into a generative system. That keeps the architecture predictable and safe.</p>
+
+      <div class="flow-stack" id="solutionStack">
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Claim</strong><small>Input case data</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Specialist Agents</strong><small>Deterministic assessments and evidence</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node core active" data-illuminate="consolidator"><div><strong>Consolidator</strong><small>The only node enhanced by the LLM</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Safe Context</strong><small>Protected fields and redacted inputs</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Prompt Contract</strong><small>Strict instruction and schema</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>LLM</strong><small>Generates only the narrative refinement</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Validator</strong><small>Accepts or rejects the response</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Fallback</strong><small>Deterministic recovery if needed</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Recommendation</strong><small>Auditable output with preserved logic</small></div></div><div class="arrow-col">↓</div></div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Explorer
+    ====================================================== -->
+    <section class="scene reveal" id="explorer" data-title="Architecture Explorer">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">Architecture Explorer</span>
+          <h2>Click a node to see its responsibility.</h2>
+        </div>
+        <div class="scene-note">This section explains the architecture without exposing source code.</div>
+      </div>
+
+      <div class="explorer-grid">
+        <div class="node-grid" id="nodeGrid" aria-label="Architecture nodes">
+          <button class="node-btn active" data-node="workflow-state"><strong>Workflow State</strong><span>Shared claim state across the graph.</span></button>
+          <button class="node-btn" data-node="safe-context"><strong>Safe Context Builder</strong><span>Redacts sensitive fields before the LLM call.</span></button>
+          <button class="node-btn" data-node="prompt-contract"><strong>Prompt Contract</strong><span>Defines the strict response shape and instructions.</span></button>
+          <button class="node-btn" data-node="provider-adapter"><strong>Provider Adapter</strong><span>Resolves which provider implementation runs.</span></button>
+          <button class="node-btn" data-node="mock-provider"><strong>Mock Provider</strong><span>Deterministic provider for testing and demos.</span></button>
+          <button class="node-btn" data-node="validator"><strong>Validator</strong><span>Checks structured output and protected fields.</span></button>
+          <button class="node-btn" data-node="fallback"><strong>Fallback</strong><span>Returns a safe deterministic response on failure.</span></button>
+          <button class="node-btn" data-node="audit-metadata"><strong>Audit Metadata</strong><span>Records provider, latency, and validation details.</span></button>
+          <button class="node-btn" data-node="consolidator"><strong>Consolidator</strong><span>Only node that invokes the LLM for narrative polish.</span></button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-card" id="nodePanel">
+            <span class="eyebrow" style="margin-bottom:12px;display:inline-flex">Selected Node</span>
+            <h3 id="panelTitle">Consolidator</h3>
+            <p id="panelLead">The LLM-enhanced node that turns deterministic outputs into a clearer recommendation narrative.</p>
+            <div class="panel-grid">
+              <div class="panel-item"><b>Purpose</b><p id="panelPurpose">Combine the specialist agent outputs into a clean recommendation story.</p></div>
+              <div class="panel-item"><b>Inputs</b><p id="panelInputs">Shared state, agent evidence, and the safe context payload.</p></div>
+              <div class="panel-item"><b>Outputs</b><p id="panelOutputs">Readable summary, validated response, and audit metadata.</p></div>
+              <div class="panel-item"><b>Responsibility</b><p id="panelResponsibility">Improve the explanation without changing routing, risk scoring, or decision logic.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Compare
+    ====================================================== -->
+    <section class="scene reveal" id="compare" data-title="Before vs After">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">Before vs After</span>
+          <h2>Stage 3 was reliable. Stage 4 is reliable and easier to explain.</h2>
+        </div>
+        <div class="scene-note">The LLM adds presentation value while the deterministic core remains untouched.</div>
+      </div>
+
+      <div class="compare-wrap">
+        <div class="compare-side stage3">
+          <span class="tag">Stage 3</span>
+          <h3 style="margin:14px 0 8px;font-size:24px;letter-spacing:-.04em">Deterministic but static</h3>
+          <div class="compare-grid">
+            <div class="compare-card"><strong>Context</strong><span>Limited to deterministic state and fixed summary wording.</span></div>
+            <div class="compare-card"><strong>Validation</strong><span>No structured LLM output to verify because no LLM existed yet.</span></div>
+            <div class="compare-card"><strong>Fallback</strong><span>Not needed for narrative generation.</span></div>
+            <div class="compare-card"><strong>Metadata</strong><span>Only business metadata, no provider trace.</span></div>
+          </div>
+        </div>
+
+        <div class="compare-side stage4">
+          <span class="tag blue">Stage 4</span>
+          <h3 style="margin:14px 0 8px;font-size:24px;letter-spacing:-.04em">Deterministic plus LLM-assisted clarity</h3>
+          <div class="compare-grid">
+            <div class="compare-card"><strong>Context</strong><span>Safe context builder removes the risk of accidental spillover.</span></div>
+            <div class="compare-card"><strong>Validation</strong><span>Structured JSON output is verified before it reaches the user.</span></div>
+            <div class="compare-card"><strong>Fallback</strong><span>Any failure returns the deterministic path immediately.</span></div>
+            <div class="compare-card"><strong>Metadata</strong><span>Provider, latency, and validation details are retained for audit.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         How It Works
+    ====================================================== -->
+    <section class="scene reveal" id="works" data-title="How It Works">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">How It Works</span>
+          <h2>The packet moves through the graph and each node lights up in order.</h2>
+        </div>
+        <div class="scene-note">A small glowing packet traces the workflow automatically.</div>
+      </div>
+
+      <div class="workflow-shell">
+        <div class="packet" id="workflowPacket" aria-hidden="true"></div>
+        <div class="workflow-track" id="workflowTrack" aria-label="AHIP workflow">
+          <div class="workflow-node" data-workflow="claim"><div><strong>Claim</strong><span>Case arrives and enters the workflow.</span></div><span class="tag">Input</span></div>
+          <div class="workflow-node" data-workflow="langgraph"><div><strong>LangGraph</strong><span>Coordinates the claim through the graph.</span></div><span class="tag blue">Orchestration</span></div>
+          <div class="workflow-node" data-workflow="specialist"><div><strong>Specialist Agents</strong><span>Deterministic analysis and evidence gathering.</span></div><span class="tag">Rules</span></div>
+          <div class="workflow-node" data-workflow="state"><div><strong>Shared State</strong><span>The graph carries one authoritative state object.</span></div><span class="tag">State</span></div>
+          <div class="workflow-node core" data-workflow="consolidator"><div><strong>Consolidator</strong><span>The only LLM-enhanced node in the workflow.</span></div><span class="tag purple">LLM</span></div>
+          <div class="workflow-node" data-workflow="safe-context"><div><strong>Safe Context</strong><span>Only the necessary, protected context is passed forward.</span></div><span class="tag">Redaction</span></div>
+          <div class="workflow-node" data-workflow="prompt"><div><strong>Prompt</strong><span>The contract shapes the exact response format.</span></div><span class="tag">Contract</span></div>
+          <div class="workflow-node" data-workflow="provider"><div><strong>Provider</strong><span>Mock provider or another implementation behind the adapter.</span></div><span class="tag blue">Abstraction</span></div>
+          <div class="workflow-node" data-workflow="validator"><div><strong>Validator</strong><span>The response must be structured and valid.</span></div><span class="tag orange">Guardrail</span></div>
+          <div class="workflow-node" data-workflow="fallback"><div><strong>Fallback?</strong><span>Any failure immediately returns the safe deterministic path.</span></div><span class="tag green">Safe Exit</span></div>
+          <div class="workflow-node" data-workflow="audit"><div><strong>Audit</strong><span>Metadata is retained with every run.</span></div><span class="tag">Trace</span></div>
+          <div class="workflow-node" data-workflow="recommendation"><div><strong>Recommendation</strong><span>Auditable output with preserved business logic.</span></div><span class="tag blue">Result</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Fallback Animation
+    ====================================================== -->
+    <section class="scene reveal" id="fallback" data-title="Fallback">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">Fallback Animation</span>
+          <h2>When the provider fails, the workflow recovers without losing the decision.</h2>
+        </div>
+        <div class="scene-note">Try the failure chips. The sequence turns orange, then returns to green.</div>
+      </div>
+
+      <div class="fallback-shell" id="fallbackShell">
+        <div class="card-head" style="margin-bottom:6px">
+          <div>
+            <span class="tag orange" id="fallbackHeadline">Provider Failure Detected</span>
+            <h3 style="margin:12px 0 8px;font-size:30px;letter-spacing:-.05em" id="fallbackTitle">Graceful Fallback Activated</h3>
+          </div>
+          <button class="ghost-btn" id="replayFallback" style="padding:10px 14px">Replay sequence</button>
+        </div>
+
+        <p class="sub" id="fallbackCopy" style="max-width:720px">Business logic is preserved. The workflow continues with a deterministic fallback and the audit trail remains intact.</p>
+
+        <div class="failure-row" id="failureRow">
+          <button class="failure-chip active" data-failure="Provider Failure">Provider Failure</button>
+          <button class="failure-chip" data-failure="Timeout">Timeout</button>
+          <button class="failure-chip" data-failure="Invalid JSON">Invalid JSON</button>
+          <button class="failure-chip" data-failure="Schema Failure">Schema Failure</button>
+        </div>
+
+        <div class="fallback-status">
+          <div class="status-card">
+            <h3 id="fallbackStatusTitle">Business Logic Preserved</h3>
+            <p class="sub" id="fallbackStatusBody" style="margin-top:0">The deterministic recommendation remains unchanged while the LLM path falls back safely.</p>
+            <div class="status-stack">
+              <div class="status-step warn" data-fallback-step="warn"><strong>Orange alert</strong><small>Failure detected</small></div>
+              <div class="status-step" data-fallback-step="recover"><strong>Green recovery</strong><small>Fallback path activated</small></div>
+              <div class="status-step" data-fallback-step="audit"><strong>Audit retained</strong><small>Metadata records the failure</small></div>
+            </div>
+          </div>
+          <div class="status-card">
+            <span class="tag green">Recovery Path</span>
+            <div class="flow-stack" style="margin-top:14px">
+              <div class="flow-row"><div class="flow-node dim"><div><strong>Failure</strong><small>Provider timeout or invalid output</small></div></div><div class="arrow-col">→</div></div>
+              <div class="flow-row"><div class="flow-node dim"><div><strong>Fallback</strong><small>Deterministic result takes over</small></div></div><div class="arrow-col">→</div></div>
+              <div class="flow-row"><div class="flow-node dim"><div><strong>Recommendation</strong><small>Workflow continues with the same decision</small></div></div><div class="arrow-col">→</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Implementation
+    ====================================================== -->
+    <section class="scene reveal" id="implementation" data-title="Implementation">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">Implementation</span>
+          <h2>These are the pieces that made Stage 4 work.</h2>
+        </div>
+        <div class="scene-note">Tap a card to expand the explanation.</div>
+      </div>
+
+      <div class="expand-grid" id="expandGrid">
+        <article class="card expand-card open">
+          <button type="button" aria-expanded="true">
+            <div class="title-row"><div><h3>LLM Package</h3><p>All LLM logic lives in one package so the rest of the app stays deterministic.</p></div><span class="chev">⌄</span></div>
+          </button>
+          <div class="expand-details"><p>It isolates prompts, schemas, provider resolution, service logic, and validation so the Consolidator can call the LLM without leaking responsibilities into the graph nodes.</p></div>
+        </article>
+        <article class="card expand-card">
+          <button type="button" aria-expanded="false">
+            <div class="title-row"><div><h3>Prompt Templates</h3><p>Clear instructions and a strict response shape.</p></div><span class="chev">⌄</span></div>
+          </button>
+          <div class="expand-details"><p>The prompt contract tells the LLM what to generate, what not to touch, and how to stay inside the structured JSON format required by the validator.</p></div>
+        </article>
+        <article class="card expand-card">
+          <button type="button" aria-expanded="false">
+            <div class="title-row"><div><h3>Provider Adapter</h3><p>Switches between provider implementations safely.</p></div><span class="chev">⌄</span></div>
+          </button>
+          <div class="expand-details"><p>The adapter keeps provider resolution behind one interface, which makes the system easy to swap, test, and protect from circular dependencies.</p></div>
+        </article>
+        <article class="card expand-card">
+          <button type="button" aria-expanded="false">
+            <div class="title-row"><div><h3>Mock Provider</h3><p>Useful for demos, tests, and deterministic validation.</p></div><span class="chev">⌄</span></div>
+          </button>
+          <div class="expand-details"><p>It behaves like a provider, but returns consistent structured content so the pipeline can be tested without external calls.</p></div>
+        </article>
+        <article class="card expand-card">
+          <button type="button" aria-expanded="false">
+            <div class="title-row"><div><h3>Validator</h3><p>Rejects malformed outputs and protects business logic.</p></div><span class="chev">⌄</span></div>
+          </button>
+          <div class="expand-details"><p>Structured validation checks the output format, the response fields, and the protected-field contract before anything is shown to the user.</p></div>
+        </article>
+        <article class="card expand-card">
+          <button type="button" aria-expanded="false">
+            <div class="title-row"><div><h3>LLM Service</h3><p>Builds safe context, calls the provider, and records metadata.</p></div><span class="chev">⌄</span></div>
+          </button>
+          <div class="expand-details"><p>The service wraps context creation, provider execution, validation, and fallback so the rest of the application only sees a reliable result.</p></div>
+        </article>
+        <article class="card expand-card">
+          <button type="button" aria-expanded="false">
+            <div class="title-row"><div><h3>Consolidator Integration</h3><p>Only one node changes. Everything else remains deterministic.</p></div><span class="chev">⌄</span></div>
+          </button>
+          <div class="expand-details"><p>The Consolidator receives deterministic outputs, calls the LLM only for narrative enhancement, and preserves the original recommendation logic.</p></div>
+        </article>
+        <article class="card expand-card">
+          <button type="button" aria-expanded="false">
+            <div class="title-row"><div><h3>Audit Metadata</h3><p>Records provider, latency, validation, and failure details.</p></div><span class="chev">⌄</span></div>
+          </button>
+          <div class="expand-details"><p>The response always carries enough metadata to explain what happened, what failed, and whether fallback was used.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Real Files
+    ====================================================== -->
+    <section class="scene reveal" id="files" data-title="Real Files">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">Real Files</span>
+          <h2>The important parts of the project tree, not the noise.</h2>
+        </div>
+        <div class="scene-note">Only the important directories are shown here.</div>
+      </div>
+
+      <div class="tree">
+        <div class="tree-row"><strong>backend/</strong><span>FastAPI and graph execution</span></div>
+        <div class="tree-row" style="margin-left:20px"><div class="indent"></div><strong>application/</strong><span>Agents, graphs, and LLM logic</span></div>
+        <div class="tree-row" style="margin-left:40px"><div class="stem"></div><strong>graphs/</strong><span>LangGraph workflow and nodes</span></div>
+        <div class="tree-row" style="margin-left:40px"><div class="stem"></div><strong>llm/</strong><span>Provider adapter, prompt contracts, validator, service</span></div>
+        <div class="tree-row" style="margin-left:20px"><div class="indent"></div><strong>tests/</strong><span>Workflow and integration checks</span></div>
+        <div class="tree-row"><strong>frontend/</strong><span>React dashboard and presentation shell</span></div>
+        <div class="tree-row" style="margin-left:20px"><div class="indent"></div><strong>src/</strong><span>Interactive UI layer</span></div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Features
+    ====================================================== -->
+    <section class="scene reveal" id="features" data-title="Key Features">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">Key Features</span>
+          <h2>The system feels simple because the rules stay clear.</h2>
+        </div>
+        <div class="scene-note">A compact summary of the core implementation choices.</div>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature"><strong>Mock Provider</strong><span>Supports deterministic demos and stable testing without external dependency noise.</span></div>
+        <div class="feature"><strong>Structured Output</strong><span>Ensures the LLM response is machine-readable before it can influence presentation.</span></div>
+        <div class="feature"><strong>Safe Context</strong><span>Only the necessary data is passed into the LLM step.</span></div>
+        <div class="feature"><strong>Protected Fields</strong><span>Routing, risk, and audit fields remain untouched by the LLM.</span></div>
+        <div class="feature"><strong>Provider Abstraction</strong><span>One adapter handles the provider choice cleanly.</span></div>
+        <div class="feature"><strong>Validation</strong><span>Structured checks catch invalid outputs before the response leaves the graph.</span></div>
+        <div class="feature"><strong>Fallback</strong><span>Any provider failure returns a safe deterministic path.</span></div>
+        <div class="feature"><strong>Audit Metadata</strong><span>Every run explains what the LLM did, if anything, and whether it failed.</span></div>
+        <div class="feature"><strong>LangGraph</strong><span>Coordinates the workflow nodes while preserving one shared state.</span></div>
+        <div class="feature"><strong>Deterministic Core</strong><span>Business logic stays the source of truth for routing and scoring.</span></div>
+        <div class="feature"><strong>Auditability</strong><span>The response stays easy to trace for mentors and reviewers.</span></div>
+        <div class="feature"><strong>Stage 4 Readiness</strong><span>The project now has a controlled LLM enhancement layer.</span></div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Learning Timeline
+    ====================================================== -->
+    <section class="scene reveal" id="learned" data-title="What I Learned">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">What I Learned</span>
+          <h2>The architecture got smarter one milestone at a time.</h2>
+        </div>
+        <div class="scene-note">Each step unlocked a more reliable LLM integration pattern.</div>
+      </div>
+
+      <div class="milestones">
+        <div class="milestone"><div class="tick">1</div><div><strong>Deterministic AI</strong><span>The workflow starts with rule-based outcomes so the system can be trusted before adding any language generation.</span></div></div>
+        <div class="milestone"><div class="tick">2</div><div><strong>LangGraph</strong><span>The graph gives the project a structured orchestration layer with shared state and predictable execution.</span></div></div>
+        <div class="milestone"><div class="tick">3</div><div><strong>Context Engineering</strong><span>Good LLM use begins with careful context design, redaction, and responsibility boundaries.</span></div></div>
+        <div class="milestone"><div class="tick">4</div><div><strong>LLM Integration</strong><span>One controlled node can improve readability without changing the business outcome.</span></div></div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Demo Script
+    ====================================================== -->
+    <section class="scene reveal" id="demo" data-title="Demo Script">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">Demo Script</span>
+          <h2>Use this sequence when you present the project live.</h2>
+        </div>
+        <div class="scene-note">The steps animate as you view the section.</div>
+      </div>
+
+      <div class="demo-steps" id="demoSteps">
+        <div class="demo-step active"><b>Step 1</b>Open Dashboard</div>
+        <div class="demo-step"><b>Step 2</b>Run Graph</div>
+        <div class="demo-step"><b>Step 3</b>LLM Enhances Summary</div>
+        <div class="demo-step"><b>Step 4</b>Validation</div>
+        <div class="demo-step"><b>Step 5</b>Metadata</div>
+        <div class="demo-step"><b>Step 6</b>Response</div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Flashcards
+    ====================================================== -->
+    <section class="scene reveal" id="flashcards" data-title="Interview Flashcards">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">Interview Flashcards</span>
+          <h2>Click to flip. Quick answers for interview conversations.</h2>
+        </div>
+        <div class="scene-note">These are designed for fast recall, not long reading.</div>
+      </div>
+
+      <div class="flash-grid">
+        <button class="flashcard" type="button" aria-label="Flip flashcard about LangGraph">
+          <div class="flashcard-inner">
+            <div class="flash-face"><strong>What does LangGraph do here?</strong><span>Click to reveal the answer.</span></div>
+            <div class="flash-face flash-back"><strong>It orchestrates the deterministic agent workflow with shared state and a predictable sequence.</strong><span>It is the control plane, not the decision maker.</span></div>
+          </div>
+        </button>
+        <button class="flashcard" type="button" aria-label="Flip flashcard about prompt engineering">
+          <div class="flashcard-inner">
+            <div class="flash-face"><strong>Why is the prompt contract important?</strong><span>Click to reveal the answer.</span></div>
+            <div class="flash-face flash-back"><strong>It constrains the LLM to structured JSON output and keeps the response inside safe boundaries.</strong><span>That makes validation reliable.</span></div>
+          </div>
+        </button>
+        <button class="flashcard" type="button" aria-label="Flip flashcard about fallback">
+          <div class="flashcard-inner">
+            <div class="flash-face"><strong>Why do we need fallback?</strong><span>Click to reveal the answer.</span></div>
+            <div class="flash-face flash-back"><strong>Fallback guarantees the business workflow continues even if the provider fails or the JSON is invalid.</strong><span>Reliability stays intact.</span></div>
+          </div>
+        </button>
+        <button class="flashcard" type="button" aria-label="Flip flashcard about provider abstraction">
+          <div class="flashcard-inner">
+            <div class="flash-face"><strong>Why use a provider adapter?</strong><span>Click to reveal the answer.</span></div>
+            <div class="flash-face flash-back"><strong>It isolates provider choice behind one interface so the system is easier to test, extend, and keep deterministic.</strong><span>The graph never depends on a specific vendor.</span></div>
+          </div>
+        </button>
+        <button class="flashcard" type="button" aria-label="Flip flashcard about structured output">
+          <div class="flashcard-inner">
+            <div class="flash-face"><strong>Why structured output?</strong><span>Click to reveal the answer.</span></div>
+            <div class="flash-face flash-back"><strong>It makes the LLM response machine-readable and easy to validate before display.</strong><span>That prevents free-form drift.</span></div>
+          </div>
+        </button>
+        <button class="flashcard" type="button" aria-label="Flip flashcard about mock provider">
+          <div class="flashcard-inner">
+            <div class="flash-face"><strong>What is the mock provider for?</strong><span>Click to reveal the answer.</span></div>
+            <div class="flash-face flash-back"><strong>It supports offline demos and deterministic testing without depending on a live LLM endpoint.</strong><span>Great for predictable verification.</span></div>
+          </div>
+        </button>
+        <button class="flashcard" type="button" aria-label="Flip flashcard about deterministic AI">
+          <div class="flashcard-inner">
+            <div class="flash-face"><strong>Why is AHIP not a chatbot?</strong><span>Click to reveal the answer.</span></div>
+            <div class="flash-face flash-back"><strong>The workflow makes a decision through deterministic agents; the LLM only improves how the result is explained.</strong><span>It is an agentic workflow.</span></div>
+          </div>
+        </button>
+        <button class="flashcard" type="button" aria-label="Flip flashcard about validation">
+          <div class="flashcard-inner">
+            <div class="flash-face"><strong>What does validation protect?</strong><span>Click to reveal the answer.</span></div>
+            <div class="flash-face flash-back"><strong>It protects the schema, the protected fields, and the reliability of the final response.</strong><span>Invalid output never reaches the user.</span></div>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Recap
+    ====================================================== -->
+    <section class="scene reveal" id="recap" data-title="Quick Recap">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">Quick Recap</span>
+          <h2>One glance at the parts that make the system trustworthy.</h2>
+        </div>
+        <div class="scene-note">A compact checklist you can use at the end of the presentation.</div>
+      </div>
+
+      <div class="checklist">
+        <div class="check-item"><div class="mark">✓</div>Safe Context</div>
+        <div class="check-item"><div class="mark">✓</div>Prompt Contracts</div>
+        <div class="check-item"><div class="mark">✓</div>Validation</div>
+        <div class="check-item"><div class="mark">✓</div>Mock Provider</div>
+        <div class="check-item"><div class="mark">✓</div>Fallback</div>
+        <div class="check-item"><div class="mark">✓</div>Audit Metadata</div>
+        <div class="check-item"><div class="mark">✓</div>LLM inside LangGraph</div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Final
+    ====================================================== -->
+    <section class="scene final-screen reveal" id="final" data-title="Final Screen">
+      <span class="eyebrow">Stage 4 Complete</span>
+      <h2>LLM Agent Integration. Rules remain deterministic. The LLM enhances explanations.</h2>
+      <p>AHIP is an agentic healthcare intelligence workflow, not a chatbot. The architecture keeps the core decisions fixed, adds structured validation, and uses fallback to preserve reliability.</p>
+      <div class="final-meta">
+        <span class="meta-pill">Prepared by Anirudh</span>
+        <span class="meta-pill">RealRails Internship</span>
+        <span class="meta-pill"><a href="https://github.com/anriudh0/AHIP" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">GitHub Repository</a></span>
+      </div>
+      <footer>
+        <div>
+          <strong>Prepared by</strong>
+          Anirudh · RealRails Internship
+        </div>
+        <div>
+          <strong>Repository</strong>
+          <a href="https://github.com/anriudh0/AHIP" target="_blank" rel="noopener noreferrer" style="color:var(--text);text-decoration:none;">https://github.com/anriudh0/AHIP</a>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    /* =========================================================
+       Helpers
+    ========================================================= */
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const sections = [...document.querySelectorAll('.scene[data-title]')];
+    const navButtons = [...document.querySelectorAll('.nav-link')];
+    const progressFill = document.getElementById('progressFill');
+
+    function scrollToSection(id){
+      const target = document.getElementById(id);
+      if(target) target.scrollIntoView({behavior: prefersReducedMotion ? 'auto' : 'smooth', block:'start'});
+    }
+
+    function setActiveNav(id){
+      navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.target === id));
+    }
+
+    function updateProgress(){
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = total <= 0 ? 0 : (window.scrollY / total) * 100;
+      progressFill.style.height = `${Math.min(100, Math.max(8, pct))}%`;
+    }
+
+    /* =========================================================
+       Navigation / Scroll Spy
+    ========================================================= */
+    navButtons.forEach(button => button.addEventListener('click', () => scrollToSection(button.dataset.target)));
+    document.querySelectorAll('[data-scroll]').forEach(button => button.addEventListener('click', () => scrollToSection(button.dataset.scroll)));
+    document.getElementById('beginStory').addEventListener('click', () => scrollToSection('problem'));
+
+    const sectionObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          setActiveNav(entry.target.id);
+        }
+      });
+    }, {rootMargin:'-35% 0px -55% 0px', threshold:0.02});
+    sections.forEach(section => sectionObserver.observe(section));
+
+    window.addEventListener('scroll', updateProgress, {passive:true});
+    updateProgress();
+
+    /* =========================================================
+       Reveal Animations
+    ========================================================= */
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('in-view');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {threshold:.18});
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* =========================================================
+       Card Glow Tracking
+    ========================================================= */
+    document.querySelectorAll('.card, .feature, .compare-side, .hero-stat, .node-btn, .tree-row, .workflow-node, .status-card').forEach(el => {
+      el.addEventListener('pointermove', e => {
+        const rect = el.getBoundingClientRect();
+        el.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`);
+        el.style.setProperty('--my', `${((e.clientY - rect.top) / rect.height) * 100}%`);
+      });
+    });
+
+    /* =========================================================
+       Hero Canvas: particles + network nodes
+    ========================================================= */
+    const heroCanvas = document.getElementById('heroCanvas');
+    const heroContext = heroCanvas?.getContext('2d');
+    let heroNodes = [];
+
+    function resizeHeroCanvas(){
+      if(!heroContext) return;
+      const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+      heroCanvas.width = heroCanvas.clientWidth * ratio;
+      heroCanvas.height = heroCanvas.clientHeight * ratio;
+      heroContext.setTransform(ratio,0,0,ratio,0,0);
+      initHeroNodes();
+    }
+
+    function initHeroNodes(){
+      if(!heroCanvas || !heroContext) return;
+      const width = heroCanvas.clientWidth;
+      const height = heroCanvas.clientHeight;
+      const total = Math.max(14, Math.floor(width / 88));
+      heroNodes = Array.from({length: total}, (_, i) => ({
+        x: (width / (total + 1)) * (i + 1) + (Math.random() * 60 - 30),
+        y: height * (0.2 + Math.random() * 0.55),
+        vx: (Math.random() - 0.5) * 0.14,
+        vy: (Math.random() - 0.5) * 0.14,
+        r: 1.2 + Math.random() * 1.9,
+      }));
+    }
+
+    function drawHeroCanvas(){
+      if(!heroContext || !heroCanvas) return;
+      const width = heroCanvas.clientWidth;
+      const height = heroCanvas.clientHeight;
+      heroContext.clearRect(0,0,width,height);
+
+      heroContext.save();
+      heroContext.globalCompositeOperation = 'lighter';
+
+      heroNodes.forEach(node => {
+        node.x += node.vx;
+        node.y += node.vy;
+        if(node.x < 20 || node.x > width - 20) node.vx *= -1;
+        if(node.y < 20 || node.y > height - 20) node.vy *= -1;
+
+        heroContext.beginPath();
+        heroContext.fillStyle = 'rgba(191,219,254,.86)';
+        heroContext.shadowColor = 'rgba(56,189,248,.45)';
+        heroContext.shadowBlur = 14;
+        heroContext.arc(node.x, node.y, node.r, 0, Math.PI * 2);
+        heroContext.fill();
+      });
+
+      for(let i = 0; i < heroNodes.length; i++){
+        for(let j = i + 1; j < heroNodes.length; j++){
+          const a = heroNodes[i];
+          const b = heroNodes[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if(dist < 180){
+            heroContext.beginPath();
+            heroContext.strokeStyle = `rgba(148,163,184,${(1 - dist / 180) * 0.18})`;
+            heroContext.lineWidth = 1;
+            heroContext.moveTo(a.x, a.y);
+            heroContext.lineTo(b.x, b.y);
+            heroContext.stroke();
+          }
+        }
+      }
+      heroContext.restore();
+      requestAnimationFrame(drawHeroCanvas);
+    }
+
+    if(heroCanvas && heroContext){
+      resizeHeroCanvas();
+      window.addEventListener('resize', resizeHeroCanvas);
+      if(!prefersReducedMotion){
+        requestAnimationFrame(drawHeroCanvas);
+      } else {
+        drawHeroCanvas();
+      }
+    }
+
+    /* =========================================================
+       Architecture Explorer Panel
+    ========================================================= */
+    const nodeDetails = {
+      'workflow-state': {
+        title: 'Workflow State',
+        lead: 'The shared state object that LangGraph passes from node to node.',
+        purpose: 'Carries the claim data, agent outputs, route flags, and recommendation state.',
+        inputs: 'Claim payload, agent observations, and graph-level metadata.',
+        outputs: 'One authoritative state snapshot for the next step in the workflow.',
+        responsibility: 'Keep the workflow consistent and deterministic.'
+      },
+      'safe-context': {
+        title: 'Safe Context Builder',
+        lead: 'Builds the minimal context required for the LLM call.',
+        purpose: 'Redacts unnecessary or protected information before the prompt is created.',
+        inputs: 'Shared state, protected field list, and relevant agent outputs.',
+        outputs: 'Clean context payload for the prompt contract.',
+        responsibility: 'Prevent leakage and preserve the business rules.'
+      },
+      'prompt-contract': {
+        title: 'Prompt Contract',
+        lead: 'Defines what the LLM may return and what it must not change.',
+        purpose: 'Keeps the LLM inside a strict structured response shape.',
+        inputs: 'Safe context and the output schema requirements.',
+        outputs: 'A constrained prompt that expects valid JSON.',
+        responsibility: 'Make the LLM predictable and validateable.'
+      },
+      'provider-adapter': {
+        title: 'Provider Adapter',
+        lead: 'Resolves the chosen LLM provider behind one stable interface.',
+        purpose: 'Allow the system to swap providers without changing the Consolidator logic.',
+        inputs: 'Provider name, settings, and execution request.',
+        outputs: 'A provider implementation ready to generate a structured response.',
+        responsibility: 'Hide provider differences from the rest of the workflow.'
+      },
+      'mock-provider': {
+        title: 'Mock Provider',
+        lead: 'Deterministic provider used for stable demos and testing.',
+        purpose: 'Simulate an LLM response without network dependency.',
+        inputs: 'Prompt and fixed provider settings.',
+        outputs: 'Structured output that behaves like a real provider response.',
+        responsibility: 'Make the demo and validation repeatable.'
+      },
+      'validator': {
+        title: 'Validator',
+        lead: 'Checks the output before the recommendation is shown.',
+        purpose: 'Reject malformed JSON, schema violations, and protected-field changes.',
+        inputs: 'Provider output and schema rules.',
+        outputs: 'Validation status plus any failure details.',
+        responsibility: 'Guard the deterministic core from bad LLM output.'
+      },
+      'fallback': {
+        title: 'Fallback',
+        lead: 'The safe route when the provider fails or the output is invalid.',
+        purpose: 'Keep the business workflow moving without changing the decision.',
+        inputs: 'Failure reason and deterministic base recommendation.',
+        outputs: 'Safe deterministic response and metadata about the failure.',
+        responsibility: 'Guarantee reliability.'
+      },
+      'audit-metadata': {
+        title: 'Audit Metadata',
+        lead: 'Everything needed to explain what happened during the LLM step.',
+        purpose: 'Capture provider, model, validation, latency, and fallback data.',
+        inputs: 'Provider result, validation result, and runtime timing.',
+        outputs: 'A traceable metadata object attached to the response.',
+        responsibility: 'Preserve observability for mentors and auditors.'
+      },
+      'consolidator': {
+        title: 'Consolidator',
+        lead: 'The only node that uses the LLM.',
+        purpose: 'Turn deterministic evidence into a clearer recommendation narrative.',
+        inputs: 'Agent outputs, safe context, and prompt contract.',
+        outputs: 'Readable summary, validated output, and audit metadata.',
+        responsibility: 'Enhance explanation without changing the decision.'
+      }
+    };
+
+    const nodeButtons = [...document.querySelectorAll('.node-btn')];
+    const panelTitle = document.getElementById('panelTitle');
+    const panelLead = document.getElementById('panelLead');
+    const panelPurpose = document.getElementById('panelPurpose');
+    const panelInputs = document.getElementById('panelInputs');
+    const panelOutputs = document.getElementById('panelOutputs');
+    const panelResponsibility = document.getElementById('panelResponsibility');
+
+    function setExplorerNode(id){
+      const info = nodeDetails[id];
+      if(!info) return;
+      nodeButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.node === id));
+      panelTitle.textContent = info.title;
+      panelLead.textContent = info.lead;
+      panelPurpose.textContent = info.purpose;
+      panelInputs.textContent = info.inputs;
+      panelOutputs.textContent = info.outputs;
+      panelResponsibility.textContent = info.responsibility;
+    }
+    nodeButtons.forEach(btn => btn.addEventListener('click', () => setExplorerNode(btn.dataset.node)));
+
+    /* =========================================================
+       Workflow Packet Animation
+    ========================================================= */
+    const workflowTrack = document.getElementById('workflowTrack');
+    const workflowPacket = document.getElementById('workflowPacket');
+    const workflowNodes = [...document.querySelectorAll('.workflow-node')];
+    let workflowPositions = [];
+
+    function mapWorkflowPositions(){
+      if(!workflowTrack || !workflowPacket) return;
+      const trackRect = workflowTrack.getBoundingClientRect();
+      workflowPositions = workflowNodes.map(node => {
+        const rect = node.getBoundingClientRect();
+        return {x: rect.left - trackRect.left - 34, y: rect.top - trackRect.top + rect.height/2 - 8};
+      });
+    }
+
+    function resetWorkflowHighlights(){
+      workflowNodes.forEach(n => n.classList.remove('active'));
+    }
+
+    function animateWorkflow(){
+      if(prefersReducedMotion || workflowPositions.length < 2) return;
+      workflowPacket.style.opacity = '1';
+      const duration = 18000;
+      const start = performance.now();
+
+      const tick = now => {
+        const elapsed = (now - start) % duration;
+        const progress = elapsed / duration;
+        const scaled = progress * (workflowPositions.length - 1);
+        const index = Math.min(workflowPositions.length - 1, Math.floor(scaled));
+        const next = Math.min(workflowPositions.length - 1, index + 1);
+        const local = scaled - index;
+        const current = workflowPositions[index];
+        const following = workflowPositions[next] || current;
+        const x = current.x + (following.x - current.x) * local;
+        const y = current.y + (following.y - current.y) * local;
+        workflowPacket.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        resetWorkflowHighlights();
+        workflowNodes[index]?.classList.add('active');
+        if(next !== index && local > 0.68) workflowNodes[next]?.classList.add('active');
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
+    /* =========================================================
+       Fallback Sequence
+    ========================================================= */
+    const fallbackShell = document.getElementById('fallbackShell');
+    const failureButtons = [...document.querySelectorAll('.failure-chip')];
+    const fallbackTitle = document.getElementById('fallbackTitle');
+    const fallbackHeadline = document.getElementById('fallbackHeadline');
+    const fallbackCopy = document.getElementById('fallbackCopy');
+    const fallbackStatusTitle = document.getElementById('fallbackStatusTitle');
+    const fallbackStatusBody = document.getElementById('fallbackStatusBody');
+    const fallbackSteps = [...document.querySelectorAll('[data-fallback-step]')];
+    let fallbackTimer = null;
+
+    function setFallbackStep(step){
+      fallbackSteps.forEach(el => el.classList.remove('on'));
+      if(step === 'warn'){ document.querySelector('[data-fallback-step="warn"]')?.classList.add('warn'); }
+      if(step === 'recover'){ document.querySelector('[data-fallback-step="recover"]')?.classList.add('on'); }
+      if(step === 'audit'){ document.querySelector('[data-fallback-step="audit"]')?.classList.add('on'); }
+    }
+
+    function runFallbackSequence(label='Provider Failure'){
+      clearTimeout(fallbackTimer);
+      failureButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.failure === label));
+      fallbackShell.classList.remove('green');
+      fallbackShell.classList.add('orange');
+      fallbackHeadline.textContent = `${label} Detected`;
+      fallbackTitle.textContent = 'Graceful Fallback Activated';
+      fallbackCopy.textContent = 'Business logic is preserved. The workflow continues with a deterministic fallback and the audit trail remains intact.';
+      fallbackStatusTitle.textContent = 'Business Logic Preserved';
+      fallbackStatusBody.textContent = 'The deterministic recommendation remains unchanged while the LLM path falls back safely.';
+      setFallbackStep('warn');
+
+      fallbackTimer = setTimeout(() => {
+        fallbackShell.classList.remove('orange');
+        fallbackShell.classList.add('green');
+        fallbackHeadline.textContent = 'Fallback Activated';
+        fallbackTitle.textContent = 'Workflow Continued';
+        fallbackCopy.textContent = 'The system immediately returns to the safe path, keeping the recommendation deterministic and the metadata complete.';
+        fallbackStatusTitle.textContent = 'Workflow Continued';
+        fallbackStatusBody.textContent = 'The fallback path lights green, the business logic stays intact, and the audit metadata captures the failure.';
+        setFallbackStep('recover');
+        setTimeout(() => setFallbackStep('audit'), 720);
+      }, prefersReducedMotion ? 0 : 1100);
+    }
+
+    failureButtons.forEach(btn => btn.addEventListener('click', () => runFallbackSequence(btn.dataset.failure)));
+    document.getElementById('replayFallback').addEventListener('click', () => runFallbackSequence(failureButtons.find(btn => btn.classList.contains('active'))?.dataset.failure || 'Provider Failure'));
+
+    const fallbackObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          runFallbackSequence('Provider Failure');
+          fallbackObserver.unobserve(entry.target);
+        }
+      });
+    }, {threshold:.5});
+    fallbackObserver.observe(fallbackShell);
+
+    /* =========================================================
+       Expand Cards
+    ========================================================= */
+    document.querySelectorAll('.expand-card').forEach(card => {
+      const button = card.querySelector('button');
+      button.addEventListener('click', () => {
+        const willOpen = !card.classList.contains('open');
+        card.classList.toggle('open', willOpen);
+        button.setAttribute('aria-expanded', String(willOpen));
+      });
+    });
+
+    /* =========================================================
+       Demo Steps Animation
+    ========================================================= */
+    const demoSteps = [...document.querySelectorAll('.demo-step')];
+    let demoIndex = 0;
+    let demoTimer = null;
+    function cycleDemo(){
+      demoSteps.forEach((step, index) => step.classList.toggle('active', index === demoIndex));
+      demoIndex = (demoIndex + 1) % demoSteps.length;
+      demoTimer = setTimeout(cycleDemo, prefersReducedMotion ? 999999 : 1300);
+    }
+
+    const demoObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting && !demoTimer){
+          cycleDemo();
+          demoObserver.unobserve(entry.target);
+        }
+      });
+    }, {threshold:.4});
+    demoObserver.observe(document.getElementById('demo'));
+
+    /* =========================================================
+       Flashcards
+    ========================================================= */
+    document.querySelectorAll('.flashcard').forEach(card => {
+      card.addEventListener('click', () => card.classList.toggle('flipped'));
+    });
+
+    /* =========================================================
+       Explorer defaults + workflow init
+    ========================================================= */
+    setExplorerNode('consolidator');
+    window.addEventListener('resize', () => {
+      mapWorkflowPositions();
+      updateProgress();
+    });
+
+    const worksObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          mapWorkflowPositions();
+          animateWorkflow();
+          worksObserver.unobserve(entry.target);
+        }
+      });
+    }, {threshold:.35});
+    worksObserver.observe(workflowTrack);
+
+    /* =========================================================
+       Kickoff after layout settles
+    ========================================================= */
+    window.addEventListener('load', () => {
+      mapWorkflowPositions();
+      if(!prefersReducedMotion){
+        setTimeout(() => {
+          const heroBtn = document.getElementById('beginStory');
+          heroBtn.animate([{transform:'translateY(0)'},{transform:'translateY(-2px)'},{transform:'translateY(0)'}], {duration:1400, iterations:1});
+        }, 600);
+      }
+    });
+  </script>
+</body>
+</html>
