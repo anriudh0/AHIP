@@ -16,3 +16,9 @@ README3.txt
 README3.md
 brief.md
 desktop.ini
+
+# Ignore generated and workspace assets
+.agents/
+.codex/
+brief/
+repomix-output.xml
