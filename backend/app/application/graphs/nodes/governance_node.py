@@ -63,15 +63,6 @@ def run(state: WorkflowState) -> WorkflowState:
     except Exception as e:  # pragma: no cover - surface errors to state
         db.rollback()
         state.errors.append({"node": "governance_node", "error": str(e)})
-        status = "error"
         return state
     finally:
         db.close()
-        state.execution_trace.append(
-            {
-                "node": "governance_node",
-                "started_at": started_at,
-                "ended_at": datetime.utcnow().isoformat(),
-                "status": status,
-            }
-        )

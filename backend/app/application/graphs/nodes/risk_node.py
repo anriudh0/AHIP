@@ -50,14 +50,4 @@ def run(state: WorkflowState) -> WorkflowState:
         return state
     except Exception as e:  # pragma: no cover - surface errors to state
         state.errors.append({"node": "risk_node", "error": str(e)})
-        status = "error"
         return state
-    finally:
-        state.execution_trace.append(
-            {
-                "node": "risk_node",
-                "started_at": started_at,
-                "ended_at": datetime.utcnow().isoformat(),
-                "status": status,
-            }
-        )

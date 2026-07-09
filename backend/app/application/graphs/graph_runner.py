@@ -9,6 +9,9 @@ from typing import List, Optional
 
 from app.application.graphs.workflow_state import WorkflowState
 from app.application.graphs.workflow_graph import NODE_SEQUENCE, GRAPH_VERSION
+import importlib
+from datetime import datetime
+from typing import Any
 
 
 class GraphRunner:
@@ -29,20 +32,35 @@ class GraphRunner:
     def run(self, state: WorkflowState) -> WorkflowState:
         """Execute nodes sequentially.
 
-        Checkpoint 1: this runner only records high-level start/end trace entries.
-        Node execution will be added in later checkpoints.
+        This runner executes the node wrappers in `NODE_SEQUENCE` in order.
+        Each node module must expose a `run(state: WorkflowState) -> WorkflowState` function.
+        Execution is synchronous and stateless: state is passed between nodes.
+        If a node raises an exception, the error is recorded and execution stops.
         """
         start = datetime.utcnow()
-        state.execution_trace.append(
-            {"node": "graph_start", "started_at": start.isoformat(), "status": "started"}
-        )
+        state.execution_trace.append({"node": "graph_start", "started_at": start.isoformat(), "status": "started"})
 
-        # Placeholder for node execution loop — nodes will be invoked in later checkpoints.
         for node_name in self.node_sequence:
-            # record that node would execute (no-op for checkpoint 1)
-            state.execution_trace.append(
-                {"node": node_name, "started_at": None, "ended_at": None, "status": "skipped_checkpoint_1"}
-            )
+            node_started = datetime.utcnow()
+            trace_entry = {"node": node_name, "started_at": node_started.isoformat(), "ended_at": None, "status": None}
+            try:
+                # import node module dynamically from app.application.graphs.nodes
+                module_path = f"app.application.graphs.nodes.{node_name}"
+                module = importlib.import_module(module_path)
+
+                # Each node exposes `run(state)` and returns WorkflowState
+                state = module.run(state)
+                trace_entry["ended_at"] = datetime.utcnow().isoformat()
+                trace_entry["status"] = "success"
+                state.execution_trace.append(trace_entry)
+            except Exception as e:  # pragma: no cover - runtime error handling
+                trace_entry["ended_at"] = datetime.utcnow().isoformat()
+                trace_entry["status"] = "error"
+                trace_entry["error"] = str(e)
+                state.execution_trace.append(trace_entry)
+                # record error and stop execution
+                state.errors.append({"node": node_name, "error": str(e)})
+                break
 
         end = datetime.utcnow()
         state.execution_trace.append({"node": "graph_end", "ended_at": end.isoformat(), "status": "completed"})
