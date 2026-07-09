@@ -6,6 +6,8 @@ from app.application.agents.orchestrator import WorkflowOrchestrator
 from app.application.decision.recommendation_engine import RecommendationEngine
 from app.application.governance.governance_service import GovernanceService
 from app.infrastructure.database.session import get_db
+from app.application.graphs.graph_runner import GraphRunner
+from app.application.graphs.workflow_state import WorkflowState
 
 router = APIRouter()
 governance_service = GovernanceService()
@@ -13,6 +15,30 @@ governance_service = GovernanceService()
 @router.post("/run-case-review")
 def run_case_review(request: AgentRunRequest, db: Session = Depends(get_db)):
     return WorkflowOrchestrator().run_case_review(request.case_id, db)
+
+
+@router.post("/run-graph")
+def run_graph(request: AgentRunRequest):
+    """Run the stateless graph runner for the provided case_id and return graph metadata.
+
+    This endpoint is additive and does not replace the existing `run-case-review` endpoint.
+    """
+    runner = GraphRunner()
+    state = runner.initialize_state(case_id=request.case_id, domain_input={"case_id": request.case_id})
+    final_state = runner.run(state)
+
+    return {
+        "graph_mode": final_state.graph_mode,
+        "graph_version": final_state.graph_version,
+        "workflow_id": final_state.workflow_id,
+        "case_id": final_state.case_id,
+        "shared_state": final_state.shared_context,
+        "agent_trace": final_state.execution_trace,
+        "recommendation": final_state.recommendation,
+        "explanation": final_state.explanation,
+        "audit_reference": final_state.audit_reference,
+        "comparison_note": "Produced using stateless graph orchestration.",
+    }
 
 @router.get("/context/{case_id}")
 def get_case_context(case_id: str, db: Session = Depends(get_db)):
