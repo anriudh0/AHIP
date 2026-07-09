@@ -4,15 +4,16 @@ from typing import List, Dict
 
 from app.application.agents.consolidator_agent import ConsolidatorAgent
 from app.application.graphs.workflow_state import WorkflowState
+from app.application.llm.llm_service import LLMService
 from app.domain.schemas.schemas import SharedCaseMemoryState
 
 
 def run(state: WorkflowState) -> WorkflowState:
-    """Run the ConsolidatorAgent using a SharedCaseMemoryState built from agent_outputs.
+    """Run the ConsolidatorAgent and optionally enrich the output with LLM narrative.
 
-    This wrapper constructs a `SharedCaseMemoryState` from `state.agent_outputs`, calls
-    the existing `ConsolidatorAgent`, stores the consolidated output into `state.recommendation`,
-    and records execution trace. No persistence is performed here.
+    This wrapper constructs a `SharedCaseMemoryState`, executes the existing deterministic
+    ConsolidatorAgent, stores the consolidated output into `state.recommendation`, and then
+    invokes the existing LLMService to enrich narrative fields without changing deterministic values.
     """
     started_at = datetime.utcnow().isoformat()
     try:
@@ -57,16 +58,27 @@ def run(state: WorkflowState) -> WorkflowState:
         consolidator = ConsolidatorAgent()
         consolidated = consolidator.run(state.case_id, shared_memory)
 
-        # Store consolidated output and a serializable shared memory snapshot
+        # Store consolidated output and a serializable shared memory snapshot.
         state.recommendation = consolidated.model_dump() if hasattr(consolidated, "model_dump") else dict(consolidated)
         state.shared_context = state.shared_context or {}
         state.shared_context["shared_memory"] = shared_memory.model_dump() if hasattr(shared_memory, "model_dump") else dict(shared_memory)
         state.recommendation.setdefault("confidence", getattr(consolidated, "confidence", None))
 
-        # Explanation will be enriched by the risk node
-        state.explanation = state.explanation or []
+        # Preserve deterministic output, then invoke LLM for optional enhancement.
+        llm_service = LLMService()
+        llm_result = llm_service.generate_from_state(state)
+        state.metadata = state.metadata or {}
+        state.metadata["llm_metadata"] = llm_result.metadata.model_dump() if hasattr(llm_result.metadata, "model_dump") else dict(llm_result.metadata)
 
-        status = "success"
+        if llm_result.validation_status == "passed" and not llm_result.fallback_used:
+            state.recommendation["recommendation_readable"] = llm_result.output.recommendation_readable
+            state.recommendation["narrative"] = llm_result.output.narrative
+            state.recommendation.setdefault("llm_recommendation", llm_result.output.recommendation)
+        else:
+            # Preserve deterministic recommendation and continue normally.
+            pass
+
+        state.explanation = state.explanation or []
         return state
     except Exception as e:  # pragma: no cover - surface errors to state
         state.errors.append({"node": "consolidator_node", "error": str(e)})

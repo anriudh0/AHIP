@@ -27,6 +27,23 @@ def run_graph(request: AgentRunRequest):
     state = runner.initialize_state(case_id=request.case_id, domain_input={"case_id": request.case_id})
     final_state = runner.run(state)
 
+    llm_metadata = None
+    if isinstance(final_state.metadata, dict):
+        llm_metadata = final_state.metadata.get("llm_metadata")
+
+    if llm_metadata is None:
+        llm_metadata = {
+            "enabled": False,
+            "provider": "mock",
+            "model": "mock-v1",
+            "provider_executed": False,
+            "validation": "not_executed",
+            "fallback_used": False,
+            "latency_ms": 0,
+            "failure_reason": None,
+            "validation_details": [],
+        }
+
     return {
         "graph_mode": final_state.graph_mode,
         "graph_version": final_state.graph_version,
@@ -43,6 +60,7 @@ def run_graph(request: AgentRunRequest):
         "route_flags": final_state.route_flags,
         "executed_path": final_state.executed_path,
         "skipped_agents": final_state.skipped_agents,
+        "llm_metadata": llm_metadata,
         "comparison_note": "Produced using stateless graph orchestration.",
     }
 
