@@ -246,7 +246,7 @@ The graph can run in deterministic mode without a provider, or in LLM-assisted m
 ### Live Demo
 
 - Frontend: [https://ahip-eta.vercel.app/](https://ahip-eta.vercel.app/)
-- Backend: no public deployment is published in this repository; run it locally or through Docker Compose
+- Backend: [https://ahip.onrender.com](https://ahip.onrender.com)
 
 ### Docker
 
