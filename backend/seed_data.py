@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.infrastructure.database.session import SessionLocal, engine
-from app.domain.entities.models import Base, Patient, Provider, ProviderContract, BenefitPlan, Claim, WorkflowEvent, CareTask
+from app.domain.entities.models import Base, Patient, Provider, ProviderContract, BenefitPlan, Claim, WorkflowEvent, CareTask, SharedCaseMemory
 from app.infrastructure.database.session import init_db
 import json
 
@@ -71,6 +71,57 @@ def seed():
     event1 = WorkflowEvent(case_id="CLM2001", event_type="CLAIM_SUBMITTED", payload={"status": "Pended", "reason": "Missing Contract"})
     event2 = WorkflowEvent(case_id="MEM1002_TASK", event_type="CARE_TASK_OVERDUE", payload={"task_id": "task1"})
     db.add_all([event1, event2])
+
+    # 9. Add Shared Case Memory entries so the priority queue and dashboard reflect demo cases
+    scm1 = SharedCaseMemory(
+        case_id="CLM2001",
+        memory={
+            "agent_sequence": ["claims-agent", "provider-agent", "patient-agent"],
+            "risk_levels": ["High", "High", "High"],
+            "recommendations": ["Pended for contract", "Investigate provider contract", "Flag for review"],
+        },
+        consolidated_output={
+            "recommendation": "Pended: missing provider contract. Recommend manual review and outreach.",
+            "risk_level": "High",
+            "risk_score": 4,
+            "contributing_agents": ["claims-agent", "provider-agent"],
+            "next_owner": "Claims Operations",
+        },
+    )
+
+    scm2 = SharedCaseMemory(
+        case_id="CLM2002",
+        memory={
+            "agent_sequence": ["claims-agent", "patient-agent"],
+            "risk_levels": ["High", "High"],
+            "recommendations": ["Missing prior auth", "High-cost intervention"],
+        },
+        consolidated_output={
+            "recommendation": "High-cost procedure without prior auth. Recommend authorization check and hold payment.",
+            "risk_level": "High",
+            "risk_score": 4,
+            "contributing_agents": ["claims-agent"],
+            "next_owner": "Care Management",
+        },
+    )
+
+    scm3 = SharedCaseMemory(
+        case_id="CLM2005",
+        memory={
+            "agent_sequence": ["claims-agent", "provider-agent"],
+            "risk_levels": ["Medium", "Medium"],
+            "recommendations": ["High amount review", "Verify contract terms"],
+        },
+        consolidated_output={
+            "recommendation": "Large claim requires contract verification and benefit check.",
+            "risk_level": "Medium",
+            "risk_score": 2,
+            "contributing_agents": ["claims-agent", "provider-agent"],
+            "next_owner": "Claims Operations",
+        },
+    )
+
+    db.add_all([scm1, scm2, scm3])
     
     db.commit()
     db.close()

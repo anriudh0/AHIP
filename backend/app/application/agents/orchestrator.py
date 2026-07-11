@@ -3,7 +3,7 @@ from app.application.agents.claims_review_agent import ClaimsReviewAgent
 from app.application.agents.consolidator_agent import ConsolidatorAgent
 from app.application.agents.provider_contract_agent import ProviderContractAgent
 from app.application.agents.patient_journey_agent import PatientJourneyAgent
-from app.domain.entities.models import AgentExecution, SharedCaseMemory
+from app.domain.entities.models import AgentExecution, SharedCaseMemory, Claim
 from app.domain.schemas.schemas import SharedCaseMemoryState
 from sqlalchemy.orm import Session
 
@@ -15,10 +15,17 @@ class WorkflowOrchestrator:
         shared_memory = SharedCaseMemoryState(case_id=case_id)
         outputs = []
 
+        # If the DB is present but the case has no persisted claim, use default demo contexts
+        has_claim = False
+        try:
+            has_claim = db is not None and db.query(Claim).filter(Claim.claim_id == case_id).first() is not None
+        except Exception:
+            has_claim = False
+
         pipeline = [
-            (PatientJourneyAgent(), self.context_builder.build_patient_journey_context(case_id, db)),
-            (ClaimsReviewAgent(), self.context_builder.build_claim_context(case_id, db)),
-            (ProviderContractAgent(), self.context_builder.build_claim_context(case_id, db)),
+            (PatientJourneyAgent(), self.context_builder.build_patient_journey_context(case_id, db if has_claim else None)),
+            (ClaimsReviewAgent(), self.context_builder.build_claim_context(case_id, db if has_claim else None)),
+            (ProviderContractAgent(), self.context_builder.build_provider_contract_context(case_id, db if has_claim else None)),
         ]
 
         for agent, context in pipeline:
