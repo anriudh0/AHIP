@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AHIP | Stage 4 LLM Agent Integration</title>
+  <title>AHIP — Agentic Healthcare Intelligence Platform</title>
   <style>
     /* =========================================================
        Design Tokens
@@ -1020,20 +1020,17 @@
       </div>
       <ul class="nav-list" id="navList">
         <li><button class="nav-link active" data-target="hero"><span class="dot"></span>Hero</button></li>
-        <li><button class="nav-link" data-target="problem"><span class="dot"></span>The Problem</button></li>
-        <li><button class="nav-link" data-target="solution"><span class="dot"></span>The Solution</button></li>
-        <li><button class="nav-link" data-target="explorer"><span class="dot"></span>Architecture Explorer</button></li>
-        <li><button class="nav-link" data-target="compare"><span class="dot"></span>Before vs After</button></li>
-        <li><button class="nav-link" data-target="works"><span class="dot"></span>How It Works</button></li>
-        <li><button class="nav-link" data-target="fallback"><span class="dot"></span>Fallback</button></li>
+        <li><button class="nav-link" data-target="problem"><span class="dot"></span>Problem</button></li>
+        <li><button class="nav-link" data-target="solution"><span class="dot"></span>Solution</button></li>
+        <li><button class="nav-link" data-target="explorer"><span class="dot"></span>Architecture</button></li>
+        <li><button class="nav-link" data-target="works"><span class="dot"></span>Routing</button></li>
+        <li><button class="nav-link" data-target="llm-enhance"><span class="dot"></span>LLM</button></li>
+        <li><button class="nav-link" data-target="fallback"><span class="dot"></span>Validation</button></li>
+        <li><button class="nav-link" data-target="human-audit"><span class="dot"></span>Human Review</button></li>
         <li><button class="nav-link" data-target="implementation"><span class="dot"></span>Implementation</button></li>
-        <li><button class="nav-link" data-target="files"><span class="dot"></span>Real Files</button></li>
-        <li><button class="nav-link" data-target="features"><span class="dot"></span>Key Features</button></li>
-        <li><button class="nav-link" data-target="learned"><span class="dot"></span>What I Learned</button></li>
-        <li><button class="nav-link" data-target="demo"><span class="dot"></span>Demo Script</button></li>
-        <li><button class="nav-link" data-target="flashcards"><span class="dot"></span>Interview Flashcards</button></li>
-        <li><button class="nav-link" data-target="recap"><span class="dot"></span>Quick Recap</button></li>
-        <li><button class="nav-link" data-target="final"><span class="dot"></span>Final Screen</button></li>
+        <li><button class="nav-link" data-target="files"><span class="dot"></span>Technology</button></li>
+        <li><button class="nav-link" data-target="features"><span class="dot"></span>Features</button></li>
+        <li><button class="nav-link" data-target="final"><span class="dot"></span>Final</button></li>
       </ul>
       <div class="nav-hint">Use the navigation to present the story in sequence. Press F11 for full-screen mode.</div>
     </div>
@@ -1047,13 +1044,13 @@
       <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
       <div class="hero-copy">
         <div class="hero-badge-row">
-          <span class="badge primary">Stage 4 · LLM Agent Integration</span>
+          <span class="badge primary">Agentic AI</span>
           <span class="badge">FastAPI</span>
           <span class="badge">LangGraph</span>
           <span class="badge">Deterministic Core</span>
         </div>
-        <h1 class="hero-title"><span class="glow-text">AHIP</span></h1>
-        <p class="hero-subtitle">Agentic Healthcare Intelligence Platform for claims review. Deterministic agents make the decisions. The LLM only improves the Consolidator narrative.</p>
+        <h1 class="hero-title"><span class="glow-text">AHIP — Agentic Healthcare Intelligence Platform</span></h1>
+        <p class="hero-subtitle">Auditable, deterministic claims review with validated, LLM-refined explanations.</p>
 
         <div class="hero-summary" aria-label="Claim flow summary">
           <span class="summary-chip">Healthcare Claims</span>
@@ -1062,7 +1059,7 @@
           <span class="summary-arrow">↓</span>
           <span class="summary-chip">LangGraph Orchestration</span>
           <span class="summary-arrow">↓</span>
-          <span class="summary-chip">LLM-Assisted Consolidation</span>
+          <span class="summary-chip">LLM-Refined Explanation</span>
           <span class="summary-arrow">↓</span>
           <span class="summary-chip">Auditable Recommendation</span>
         </div>
@@ -1076,11 +1073,15 @@
       <aside class="hero-side">
         <div class="hero-stat hero-float">
           <strong>What AHIP is</strong>
-          <span>A healthcare claims workflow that keeps routing, risk scoring, and audit deterministic while using an LLM only for the final explanation.</span>
+          <span>An enterprise claims workflow where routing, scoring and audit remain deterministic and explanations are clearer for reviewers.</span>
         </div>
-        <div class="hero-stat hero-float" style="animation-delay:.35s">
+        <div class="hero-stat hero-float" style="animation-delay:.25s">
           <strong>Why it matters</strong>
-          <span>Teams get correct decisions, consistent policy enforcement, and cleaner recommendations without turning the system into a chatbot.</span>
+          <span>Ensures correct decisions, consistent policy enforcement, and clearer recommendations without conversational behavior.</span>
+        </div>
+        <div class="hero-stat hero-float" style="animation-delay:.45s">
+          <strong>Who benefits</strong>
+          <span>Payers, claims reviewers, compliance and audit teams receive faster, auditable recommendations.</span>
         </div>
         <div class="hero-stack">
           <div class="stack-pill"><b>React</b><em>Frontend presentation layer</em></div>
@@ -1091,15 +1092,71 @@
     </section>
 
     <!-- =====================================================
+         Controlled LLM Enhancement
+    ====================================================== -->
+    <section class="scene reveal" id="llm-enhance" data-title="Controlled LLM Enhancement">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">Controlled LLM Enhancement</span>
+          <h2>One focused enhancement point for clearer explanations.</h2>
+        </div>
+        <div class="scene-note">The Consolidator uses an LLM only to refine wording; it does not change decision logic.</div>
+      </div>
+
+      <div class="columns-2">
+        <div class="card">
+          <div class="card-head"><h3>Why only one node?</h3><span class="tag">Safety</span></div>
+          <p>Limiting LLM access to the Consolidator keeps routing, scoring and audit deterministic. The LLM receives a minimal, redacted context and a strict prompt contract.</p>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>What the LLM can and cannot do</h3><span class="tag blue">Boundaries</span></div>
+          <ul class="subtle-list">
+            <li>Can refine language, create an executive summary, and improve readability.</li>
+            <li>Cannot change route selection, risk scores, protected fields, or audit records.</li>
+            <li>All responses must pass schema validation before display.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Human Review & Audit
+    ====================================================== -->
+    <section class="scene reveal" id="human-audit" data-title="Human Review & Audit">
+      <div class="scene-head">
+        <div>
+          <span class="eyebrow">Human Review & Audit</span>
+          <h2>Humans remain in control — every recommendation is explainable.</h2>
+        </div>
+        <div class="scene-note">Metadata and traces support reviewer trust and compliance.</div>
+      </div>
+
+      <div class="columns-3">
+        <div class="card">
+          <div class="card-head"><h3>Human-in-the-loop</h3><span class="tag">Review</span></div>
+          <p>The platform surfaces agent evidence and a validated narrative so reviewers can accept, flag, or override the recommendation.</p>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Audit Metadata</h3><span class="tag blue">Trace</span></div>
+          <p>Provider, model, latency, validation status, fallback reason and execution path are recorded with each run.</p>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Explainability</h3><span class="tag green">Trust</span></div>
+          <p>Reviewers see which agents contributed, why routes were selected, and which data points influenced the recommendation.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
          Problem
     ====================================================== -->
     <section class="scene reveal" id="problem" data-title="The Problem">
       <div class="scene-head">
         <div>
           <span class="eyebrow">The Problem</span>
-          <h2>Before Stage 4, the workflow was correct but explanations were static.</h2>
+          <h2>Deterministic decisions lacked concise, auditable explanations.</h2>
         </div>
-        <div class="scene-note">The system already produced deterministic outcomes, but the recommendation layer needed a more readable narrative without changing business logic.</div>
+        <div class="scene-note">Decisions were reliable but difficult for reviewers to interpret and audit without changing business logic.</div>
       </div>
 
       <div class="columns-2">
@@ -1108,80 +1165,86 @@
           <div class="flow-stack">
             <div class="flow-node dim"><div><strong>Claim</strong><small>Incoming case data and claim context</small></div></div>
             <div class="flow-row"><div class="flow-node dim"><div><strong>Agents</strong><small>Specialist rule-based agents</small></div></div><div class="arrow-col">↓</div></div>
-            <div class="flow-row"><div class="flow-node dim"><div><strong>Consolidator</strong><small>Combined evidence and created the recommendation</small></div></div><div class="arrow-col">↓</div></div>
-            <div class="flow-row"><div class="flow-node dim"><div><strong>Recommendation</strong><small>Correct, but the wording was static</small></div></div><div class="arrow-col">↓</div></div>
+            <div class="flow-row"><div class="flow-node dim"><div><strong>Consolidator</strong><small>Composes evidence into a single recommendation</small></div></div><div class="arrow-col">↓</div></div>
+            <div class="flow-row"><div class="flow-node dim"><div><strong>Recommendation</strong><small>Accurate, but explanations lacked clarity</small></div></div><div class="arrow-col">↓</div></div>
           </div>
         </div>
         <div class="card">
-          <div class="card-head"><h3>Why it felt limited</h3><span class="tag orange">Presentation gap</span></div>
+          <div class="card-head"><h3>The healthcare challenge</h3><span class="tag orange">Fragmented data & manual review</span></div>
           <ul class="subtle-list">
-            <li>Deterministic outputs were reliable, but they were not easy to present in a single clean narrative.</li>
-            <li>The recommendation needed better explanation without allowing the LLM to alter routing, scoring, or audit.</li>
-            <li>The system needed a way to stay auditable while sounding more natural to human reviewers.</li>
+            <li>Information is spread across patients, providers, benefit plans, claims records, care history and contracts.</li>
+            <li>Manual workflows are slow; decisions are hard to explain and audit.</li>
+            <li>Review teams need clear, auditable narratives that do not change the underlying business logic.</li>
           </ul>
+          <p style="margin-top:12px" class="sub">AHIP unifies evidence from specialist agents, preserves deterministic business rules, and delivers explainable recommendations to reviewers.</p>
         </div>
       </div>
     </section>
 
     <!-- =====================================================
-         Solution
+         Solution / Pipeline
     ====================================================== -->
     <section class="scene reveal" id="solution" data-title="The Solution">
       <div class="scene-head">
         <div>
-          <span class="eyebrow">The Solution</span>
-          <h2>Only the Consolidator lights up. Everything else stays deterministic.</h2>
+          <span class="eyebrow">Solution</span>
+          <h2>An agentic pipeline that unifies evidence, preserves rules, and produces explainable recommendations.</h2>
         </div>
-        <div class="scene-note">The LLM joins after safe context is built, then validation and fallback protect the workflow.</div>
+        <div class="scene-note">Specialist agents, shared memory and a controlled consolidation step deliver audited recommendations.</div>
       </div>
 
-      <p class="sub">Stage 4 adds one controlled LLM enhancement point instead of turning the workflow into a generative system. That keeps the architecture predictable and safe.</p>
+      <p class="sub">AHIP combines specialist agents, a single shared state, and deterministic orchestration. The Consolidator composes evidence into a readable recommendation; an LLM refines wording only after validation and fallback checks.</p>
 
       <div class="flow-stack" id="solutionStack">
-        <div class="flow-row"><div class="flow-node dim"><div><strong>Claim</strong><small>Input case data</small></div></div><div class="arrow-col">↓</div></div>
-        <div class="flow-row"><div class="flow-node dim"><div><strong>Specialist Agents</strong><small>Deterministic assessments and evidence</small></div></div><div class="arrow-col">↓</div></div>
-        <div class="flow-row"><div class="flow-node core active" data-illuminate="consolidator"><div><strong>Consolidator</strong><small>The only node enhanced by the LLM</small></div></div><div class="arrow-col">↓</div></div>
-        <div class="flow-row"><div class="flow-node dim"><div><strong>Safe Context</strong><small>Protected fields and redacted inputs</small></div></div><div class="arrow-col">↓</div></div>
-        <div class="flow-row"><div class="flow-node dim"><div><strong>Prompt Contract</strong><small>Strict instruction and schema</small></div></div><div class="arrow-col">↓</div></div>
-        <div class="flow-row"><div class="flow-node dim"><div><strong>LLM</strong><small>Generates only the narrative refinement</small></div></div><div class="arrow-col">↓</div></div>
-        <div class="flow-row"><div class="flow-node dim"><div><strong>Validator</strong><small>Accepts or rejects the response</small></div></div><div class="arrow-col">↓</div></div>
-        <div class="flow-row"><div class="flow-node dim"><div><strong>Fallback</strong><small>Deterministic recovery if needed</small></div></div><div class="arrow-col">↓</div></div>
-        <div class="flow-row"><div class="flow-node dim"><div><strong>Recommendation</strong><small>Auditable output with preserved logic</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Claim</strong><small>Incoming case data</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Specialist Agents</strong><small>Patient, Claims, Provider — focused evidence</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Shared Memory</strong><small>One authoritative case state</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>LangGraph</strong><small>Deterministic orchestration and routing</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node core active" data-illuminate="consolidator"><div><strong>Consolidator</strong><small>Combines evidence into a recommendation</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Safe Context</strong><small>Redaction & minimal prompt payload</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Prompt Contract</strong><small>Structured instructions and schema</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>LLM (optional)</strong><small>Refines wording only — never decision logic</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Validator</strong><small>Schema & protected-field checks</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Fallback</strong><small>Deterministic recovery on failure</small></div></div><div class="arrow-col">↓</div></div>
+        <div class="flow-row"><div class="flow-node dim"><div><strong>Recommendation</strong><small>Auditable, reviewable output</small></div></div><div class="arrow-col">↓</div></div>
       </div>
     </section>
 
     <!-- =====================================================
          Explorer
     ====================================================== -->
-    <section class="scene reveal" id="explorer" data-title="Architecture Explorer">
+    <section class="scene reveal" id="explorer" data-title="Agentic AI Architecture">
       <div class="scene-head">
         <div>
-          <span class="eyebrow">Architecture Explorer</span>
-          <h2>Click a node to see its responsibility.</h2>
+          <span class="eyebrow">Agentic AI Architecture</span>
+          <h2>Specialized agents and system components — click to explore.</h2>
         </div>
-        <div class="scene-note">This section explains the architecture without exposing source code.</div>
+        <div class="scene-note">Understand each agent's responsibility and how they collaborate via shared memory.</div>
       </div>
 
       <div class="explorer-grid">
         <div class="node-grid" id="nodeGrid" aria-label="Architecture nodes">
-          <button class="node-btn active" data-node="workflow-state"><strong>Workflow State</strong><span>Shared claim state across the graph.</span></button>
-          <button class="node-btn" data-node="safe-context"><strong>Safe Context Builder</strong><span>Redacts sensitive fields before the LLM call.</span></button>
-          <button class="node-btn" data-node="prompt-contract"><strong>Prompt Contract</strong><span>Defines the strict response shape and instructions.</span></button>
-          <button class="node-btn" data-node="provider-adapter"><strong>Provider Adapter</strong><span>Resolves which provider implementation runs.</span></button>
-          <button class="node-btn" data-node="mock-provider"><strong>Mock Provider</strong><span>Deterministic provider for testing and demos.</span></button>
-          <button class="node-btn" data-node="validator"><strong>Validator</strong><span>Checks structured output and protected fields.</span></button>
-          <button class="node-btn" data-node="fallback"><strong>Fallback</strong><span>Returns a safe deterministic response on failure.</span></button>
-          <button class="node-btn" data-node="audit-metadata"><strong>Audit Metadata</strong><span>Records provider, latency, and validation details.</span></button>
-          <button class="node-btn" data-node="consolidator"><strong>Consolidator</strong><span>Only node that invokes the LLM for narrative polish.</span></button>
+          <button class="node-btn active" data-node="patient-agent"><strong>Patient Agent</strong><span>Extracts patient risk signals and history.</span></button>
+          <button class="node-btn" data-node="claims-agent"><strong>Claims Agent</strong><span>Checks claim amounts, exceptions and patterns.</span></button>
+          <button class="node-btn" data-node="provider-agent"><strong>Provider Agent</strong><span>Evaluates provider contracts and network status.</span></button>
+          <button class="node-btn" data-node="consolidator"><strong>Consolidator</strong><span>Combines evidence and produces the final narrative.</span></button>
+          <button class="node-btn" data-node="shared-memory"><strong>Shared Memory</strong><span>The single authoritative state for the case.</span></button>
+          <button class="node-btn" data-node="context-builder"><strong>Context Builder</strong><span>Prepares a minimal, redacted payload for the LLM.</span></button>
+          <button class="node-btn" data-node="prompt-contract"><strong>Prompt Contract</strong><span>Strict instruction and response schema for safety.</span></button>
+          <button class="node-btn" data-node="provider-adapter"><strong>Provider Adapter</strong><span>Pluggable provider resolution and isolation.</span></button>
+          <button class="node-btn" data-node="mock-provider"><strong>Mock Provider</strong><span>Deterministic responses for testing and demos.</span></button>
+          <button class="node-btn" data-node="validator"><strong>Validator</strong><span>Verifies structured output and protected fields.</span></button>
+          <button class="node-btn" data-node="fallback"><strong>Fallback</strong><span>Deterministic recovery when the LLM path fails.</span></button>
+          <button class="node-btn" data-node="audit-metadata"><strong>Audit Metadata</strong><span>Records provider, latency, validation and fallback traces.</span></button>
         </div>
 
         <div class="panel">
           <div class="panel-card" id="nodePanel">
             <span class="eyebrow" style="margin-bottom:12px;display:inline-flex">Selected Node</span>
             <h3 id="panelTitle">Consolidator</h3>
-            <p id="panelLead">The LLM-enhanced node that turns deterministic outputs into a clearer recommendation narrative.</p>
+            <p id="panelLead">Produces a clearer recommendation from deterministic outputs; LLM refines wording only after validation.</p>
             <div class="panel-grid">
-              <div class="panel-item"><b>Purpose</b><p id="panelPurpose">Combine the specialist agent outputs into a clean recommendation story.</p></div>
+              <div class="panel-item"><b>Purpose</b><p id="panelPurpose">Compose specialist agent outputs into a concise, auditable recommendation.</p></div>
               <div class="panel-item"><b>Inputs</b><p id="panelInputs">Shared state, agent evidence, and the safe context payload.</p></div>
               <div class="panel-item"><b>Outputs</b><p id="panelOutputs">Readable summary, validated response, and audit metadata.</p></div>
               <div class="panel-item"><b>Responsibility</b><p id="panelResponsibility">Improve the explanation without changing routing, risk scoring, or decision logic.</p></div>
@@ -1192,20 +1255,20 @@
     </section>
 
     <!-- =====================================================
-         Compare
+         Deterministic Business Logic
     ====================================================== -->
-    <section class="scene reveal" id="compare" data-title="Before vs After">
+    <section class="scene reveal" id="compare" data-title="Deterministic Business Logic">
       <div class="scene-head">
         <div>
-          <span class="eyebrow">Before vs After</span>
-          <h2>Stage 3 was reliable. Stage 4 is reliable and easier to explain.</h2>
+          <span class="eyebrow">Deterministic Core</span>
+          <h2>Business rules, scores and routing remain deterministic and auditable.</h2>
         </div>
-        <div class="scene-note">The LLM adds presentation value while the deterministic core remains untouched.</div>
+        <div class="scene-note">AHIP preserves rule-based decisions so compliance and auditability are unchanged by narrative enhancements.</div>
       </div>
 
       <div class="compare-wrap">
         <div class="compare-side stage3">
-          <span class="tag">Stage 3</span>
+          <span class="tag">Before</span>
           <h3 style="margin:14px 0 8px;font-size:24px;letter-spacing:-.04em">Deterministic but static</h3>
           <div class="compare-grid">
             <div class="compare-card"><strong>Context</strong><span>Limited to deterministic state and fixed summary wording.</span></div>
@@ -1216,13 +1279,13 @@
         </div>
 
         <div class="compare-side stage4">
-          <span class="tag blue">Stage 4</span>
-          <h3 style="margin:14px 0 8px;font-size:24px;letter-spacing:-.04em">Deterministic plus LLM-assisted clarity</h3>
+          <span class="tag blue">After</span>
+          <h3 style="margin:14px 0 8px;font-size:24px;letter-spacing:-.04em">Deterministic with explainable narratives</h3>
           <div class="compare-grid">
-            <div class="compare-card"><strong>Context</strong><span>Safe context builder removes the risk of accidental spillover.</span></div>
-            <div class="compare-card"><strong>Validation</strong><span>Structured JSON output is verified before it reaches the user.</span></div>
-            <div class="compare-card"><strong>Fallback</strong><span>Any failure returns the deterministic path immediately.</span></div>
-            <div class="compare-card"><strong>Metadata</strong><span>Provider, latency, and validation details are retained for audit.</span></div>
+            <div class="compare-card"><strong>Context</strong><span>Only redacted, necessary context is passed to the LLM step.</span></div>
+            <div class="compare-card"><strong>Validation</strong><span>Structured output is verified before it can affect presentation.</span></div>
+            <div class="compare-card"><strong>Fallback</strong><span>Deterministic recommendation is returned if validation fails.</span></div>
+            <div class="compare-card"><strong>Metadata</strong><span>Provider, latency, validation and fallback traces are retained for audit.</span></div>
           </div>
         </div>
       </div>
@@ -1231,13 +1294,13 @@
     <!-- =====================================================
          How It Works
     ====================================================== -->
-    <section class="scene reveal" id="works" data-title="How It Works">
+    <section class="scene reveal" id="works" data-title="LangGraph Orchestration">
       <div class="scene-head">
         <div>
-          <span class="eyebrow">How It Works</span>
-          <h2>The packet moves through the graph and each node lights up in order.</h2>
+          <span class="eyebrow">LangGraph Orchestration</span>
+          <h2>Linear and conditional routing across a deterministic graph.</h2>
         </div>
-        <div class="scene-note">A small glowing packet traces the workflow automatically.</div>
+        <div class="scene-note">The workflow packet animates to show node sequencing and state flow.</div>
       </div>
 
       <div class="workflow-shell">
@@ -1260,15 +1323,15 @@
     </section>
 
     <!-- =====================================================
-         Fallback Animation
+         Validation & Fallback
     ====================================================== -->
-    <section class="scene reveal" id="fallback" data-title="Fallback">
+    <section class="scene reveal" id="fallback" data-title="Validation & Fallback">
       <div class="scene-head">
         <div>
-          <span class="eyebrow">Fallback Animation</span>
-          <h2>When the provider fails, the workflow recovers without losing the decision.</h2>
+          <span class="eyebrow">Validation & Fallback</span>
+          <h2>Validated outputs and a deterministic recovery path ensure safety.</h2>
         </div>
-        <div class="scene-note">Try the failure chips. The sequence turns orange, then returns to green.</div>
+        <div class="scene-note">Use the failure chips to see validation, fallback, and audit metadata in action.</div>
       </div>
 
       <div class="fallback-shell" id="fallbackShell">
@@ -1294,9 +1357,9 @@
             <h3 id="fallbackStatusTitle">Business Logic Preserved</h3>
             <p class="sub" id="fallbackStatusBody" style="margin-top:0">The deterministic recommendation remains unchanged while the LLM path falls back safely.</p>
             <div class="status-stack">
-              <div class="status-step warn" data-fallback-step="warn"><strong>Orange alert</strong><small>Failure detected</small></div>
-              <div class="status-step" data-fallback-step="recover"><strong>Green recovery</strong><small>Fallback path activated</small></div>
-              <div class="status-step" data-fallback-step="audit"><strong>Audit retained</strong><small>Metadata records the failure</small></div>
+                <div class="status-step warn" data-fallback-step="warn"><strong>Failure detected</strong><small>Provider failure or invalid output</small></div>
+                <div class="status-step" data-fallback-step="recover"><strong>Fallback activated</strong><small>Deterministic recommendation returned</small></div>
+                <div class="status-step" data-fallback-step="audit"><strong>Audit recorded</strong><small>Provider, latency, validation and fallback traces</small></div>
             </div>
           </div>
           <div class="status-card">
@@ -1318,9 +1381,9 @@
       <div class="scene-head">
         <div>
           <span class="eyebrow">Implementation</span>
-          <h2>These are the pieces that made Stage 4 work.</h2>
+          <h2>These are the pieces that enable the controlled LLM enhancement.</h2>
         </div>
-        <div class="scene-note">Tap a card to expand the explanation.</div>
+        <div class="scene-note">Expand a card to read implementation details.</div>
       </div>
 
       <div class="expand-grid" id="expandGrid">
@@ -1376,205 +1439,75 @@
     </section>
 
     <!-- =====================================================
-         Real Files
+         Technology Stack
     ====================================================== -->
-    <section class="scene reveal" id="files" data-title="Real Files">
+    <section class="scene reveal" id="files" data-title="Technology Stack">
       <div class="scene-head">
         <div>
-          <span class="eyebrow">Real Files</span>
-          <h2>The important parts of the project tree, not the noise.</h2>
+          <span class="eyebrow">Technology</span>
+          <h2>Core technologies powering AHIP</h2>
         </div>
-        <div class="scene-note">Only the important directories are shown here.</div>
-      </div>
-
-      <div class="tree">
-        <div class="tree-row"><strong>backend/</strong><span>FastAPI and graph execution</span></div>
-        <div class="tree-row" style="margin-left:20px"><div class="indent"></div><strong>application/</strong><span>Agents, graphs, and LLM logic</span></div>
-        <div class="tree-row" style="margin-left:40px"><div class="stem"></div><strong>graphs/</strong><span>LangGraph workflow and nodes</span></div>
-        <div class="tree-row" style="margin-left:40px"><div class="stem"></div><strong>llm/</strong><span>Provider adapter, prompt contracts, validator, service</span></div>
-        <div class="tree-row" style="margin-left:20px"><div class="indent"></div><strong>tests/</strong><span>Workflow and integration checks</span></div>
-        <div class="tree-row"><strong>frontend/</strong><span>React dashboard and presentation shell</span></div>
-        <div class="tree-row" style="margin-left:20px"><div class="indent"></div><strong>src/</strong><span>Interactive UI layer</span></div>
-      </div>
-    </section>
-
-    <!-- =====================================================
-         Features
-    ====================================================== -->
-    <section class="scene reveal" id="features" data-title="Key Features">
-      <div class="scene-head">
-        <div>
-          <span class="eyebrow">Key Features</span>
-          <h2>The system feels simple because the rules stay clear.</h2>
-        </div>
-        <div class="scene-note">A compact summary of the core implementation choices.</div>
+        <div class="scene-note">A concise view of the stack used in this project.</div>
       </div>
 
       <div class="feature-grid">
-        <div class="feature"><strong>Mock Provider</strong><span>Supports deterministic demos and stable testing without external dependency noise.</span></div>
-        <div class="feature"><strong>Structured Output</strong><span>Ensures the LLM response is machine-readable before it can influence presentation.</span></div>
-        <div class="feature"><strong>Safe Context</strong><span>Only the necessary data is passed into the LLM step.</span></div>
-        <div class="feature"><strong>Protected Fields</strong><span>Routing, risk, and audit fields remain untouched by the LLM.</span></div>
-        <div class="feature"><strong>Provider Abstraction</strong><span>One adapter handles the provider choice cleanly.</span></div>
-        <div class="feature"><strong>Validation</strong><span>Structured checks catch invalid outputs before the response leaves the graph.</span></div>
-        <div class="feature"><strong>Fallback</strong><span>Any provider failure returns a safe deterministic path.</span></div>
-        <div class="feature"><strong>Audit Metadata</strong><span>Every run explains what the LLM did, if anything, and whether it failed.</span></div>
-        <div class="feature"><strong>LangGraph</strong><span>Coordinates the workflow nodes while preserving one shared state.</span></div>
-        <div class="feature"><strong>Deterministic Core</strong><span>Business logic stays the source of truth for routing and scoring.</span></div>
-        <div class="feature"><strong>Auditability</strong><span>The response stays easy to trace for mentors and reviewers.</span></div>
-        <div class="feature"><strong>Stage 4 Readiness</strong><span>The project now has a controlled LLM enhancement layer.</span></div>
+        <div class="feature"><strong>React</strong><span>Frontend UI, presentation layer, and interactive console.</span></div>
+        <div class="feature"><strong>FastAPI</strong><span>Backend API and Graph runner endpoints.</span></div>
+        <div class="feature"><strong>LangGraph</strong><span>Orchestration layer for deterministic node execution.</span></div>
+        <div class="feature"><strong>SQLAlchemy</strong><span>Data models and DB access (Declarative + sessions).</span></div>
+        <div class="feature"><strong>SQLite / PostgreSQL</strong><span>Supported databases for local and production deployments.</span></div>
+        <div class="feature"><strong>Pydantic</strong><span>Structured validation for requests, responses, and LLM schemas.</span></div>
+        <div class="feature"><strong>Docker</strong><span>Containerized services for reproducible deployments.</span></div>
+        <div class="feature"><strong>Python</strong><span>Application language, business logic and graph nodes.</span></div>
+        <div class="feature"><strong>Vite</strong><span>Frontend build tooling for the React app.</span></div>
+        <div class="feature"><strong>Node tooling</strong><span>Frontend dev dependencies and bundling.</span></div>
       </div>
     </section>
 
     <!-- =====================================================
-         Learning Timeline
+         Key Product Features
     ====================================================== -->
-    <section class="scene reveal" id="learned" data-title="What I Learned">
+    <section class="scene reveal" id="features" data-title="Key Product Features">
       <div class="scene-head">
         <div>
-          <span class="eyebrow">What I Learned</span>
-          <h2>The architecture got smarter one milestone at a time.</h2>
+          <span class="eyebrow">Product Features</span>
+          <h2>Capabilities that make AHIP a reliable platform.</h2>
         </div>
-        <div class="scene-note">Each step unlocked a more reliable LLM integration pattern.</div>
+        <div class="scene-note">A product-focused summary of core features.</div>
       </div>
 
-      <div class="milestones">
-        <div class="milestone"><div class="tick">1</div><div><strong>Deterministic AI</strong><span>The workflow starts with rule-based outcomes so the system can be trusted before adding any language generation.</span></div></div>
-        <div class="milestone"><div class="tick">2</div><div><strong>LangGraph</strong><span>The graph gives the project a structured orchestration layer with shared state and predictable execution.</span></div></div>
-        <div class="milestone"><div class="tick">3</div><div><strong>Context Engineering</strong><span>Good LLM use begins with careful context design, redaction, and responsibility boundaries.</span></div></div>
-        <div class="milestone"><div class="tick">4</div><div><strong>LLM Integration</strong><span>One controlled node can improve readability without changing the business outcome.</span></div></div>
+      <div class="feature-grid">
+        <div class="feature"><strong>Deterministic AI</strong><span>Business decisions, scoring and routing remain rule-based and auditable.</span></div>
+        <div class="feature"><strong>Agent Collaboration</strong><span>Specialized agents contribute focused observations to a shared case state.</span></div>
+        <div class="feature"><strong>Shared Memory</strong><span>One authoritative state object coordinates agent work and preserves traceability.</span></div>
+        <div class="feature"><strong>Conditional Graph Routing</strong><span>LangGraph enables linear and conditional execution paths for predictable workflows.</span></div>
+        <div class="feature"><strong>Explainable Recommendations</strong><span>Human-friendly narratives are generated while preserving original decisions.</span></div>
+        <div class="feature"><strong>Structured Validation</strong><span>LLM outputs are schema-checked before being used or displayed.</span></div>
+        <div class="feature"><strong>LLM Safety</strong><span>Only the Consolidator uses an LLM under strict prompt contracts and redaction.</span></div>
+        <div class="feature"><strong>Audit Trail</strong><span>Provider, latency, validation and fallback metadata are retained per run.</span></div>
+        <div class="feature"><strong>Human Review</strong><span>Every recommendation is reviewable and reversible by human operators.</span></div>
+        <div class="feature"><strong>Scalable Architecture</strong><span>Modular nodes, provider adapter, and container-friendly services support scaling.</span></div>
       </div>
     </section>
 
-    <!-- =====================================================
-         Demo Script
-    ====================================================== -->
-    <section class="scene reveal" id="demo" data-title="Demo Script">
-      <div class="scene-head">
-        <div>
-          <span class="eyebrow">Demo Script</span>
-          <h2>Use this sequence when you present the project live.</h2>
-        </div>
-        <div class="scene-note">The steps animate as you view the section.</div>
-      </div>
-
-      <div class="demo-steps" id="demoSteps">
-        <div class="demo-step active"><b>Step 1</b>Open Dashboard</div>
-        <div class="demo-step"><b>Step 2</b>Run Graph</div>
-        <div class="demo-step"><b>Step 3</b>LLM Enhances Summary</div>
-        <div class="demo-step"><b>Step 4</b>Validation</div>
-        <div class="demo-step"><b>Step 5</b>Metadata</div>
-        <div class="demo-step"><b>Step 6</b>Response</div>
-      </div>
-    </section>
-
-    <!-- =====================================================
-         Flashcards
-    ====================================================== -->
-    <section class="scene reveal" id="flashcards" data-title="Interview Flashcards">
-      <div class="scene-head">
-        <div>
-          <span class="eyebrow">Interview Flashcards</span>
-          <h2>Click to flip. Quick answers for interview conversations.</h2>
-        </div>
-        <div class="scene-note">These are designed for fast recall, not long reading.</div>
-      </div>
-
-      <div class="flash-grid">
-        <button class="flashcard" type="button" aria-label="Flip flashcard about LangGraph">
-          <div class="flashcard-inner">
-            <div class="flash-face"><strong>What does LangGraph do here?</strong><span>Click to reveal the answer.</span></div>
-            <div class="flash-face flash-back"><strong>It orchestrates the deterministic agent workflow with shared state and a predictable sequence.</strong><span>It is the control plane, not the decision maker.</span></div>
-          </div>
-        </button>
-        <button class="flashcard" type="button" aria-label="Flip flashcard about prompt engineering">
-          <div class="flashcard-inner">
-            <div class="flash-face"><strong>Why is the prompt contract important?</strong><span>Click to reveal the answer.</span></div>
-            <div class="flash-face flash-back"><strong>It constrains the LLM to structured JSON output and keeps the response inside safe boundaries.</strong><span>That makes validation reliable.</span></div>
-          </div>
-        </button>
-        <button class="flashcard" type="button" aria-label="Flip flashcard about fallback">
-          <div class="flashcard-inner">
-            <div class="flash-face"><strong>Why do we need fallback?</strong><span>Click to reveal the answer.</span></div>
-            <div class="flash-face flash-back"><strong>Fallback guarantees the business workflow continues even if the provider fails or the JSON is invalid.</strong><span>Reliability stays intact.</span></div>
-          </div>
-        </button>
-        <button class="flashcard" type="button" aria-label="Flip flashcard about provider abstraction">
-          <div class="flashcard-inner">
-            <div class="flash-face"><strong>Why use a provider adapter?</strong><span>Click to reveal the answer.</span></div>
-            <div class="flash-face flash-back"><strong>It isolates provider choice behind one interface so the system is easier to test, extend, and keep deterministic.</strong><span>The graph never depends on a specific vendor.</span></div>
-          </div>
-        </button>
-        <button class="flashcard" type="button" aria-label="Flip flashcard about structured output">
-          <div class="flashcard-inner">
-            <div class="flash-face"><strong>Why structured output?</strong><span>Click to reveal the answer.</span></div>
-            <div class="flash-face flash-back"><strong>It makes the LLM response machine-readable and easy to validate before display.</strong><span>That prevents free-form drift.</span></div>
-          </div>
-        </button>
-        <button class="flashcard" type="button" aria-label="Flip flashcard about mock provider">
-          <div class="flashcard-inner">
-            <div class="flash-face"><strong>What is the mock provider for?</strong><span>Click to reveal the answer.</span></div>
-            <div class="flash-face flash-back"><strong>It supports offline demos and deterministic testing without depending on a live LLM endpoint.</strong><span>Great for predictable verification.</span></div>
-          </div>
-        </button>
-        <button class="flashcard" type="button" aria-label="Flip flashcard about deterministic AI">
-          <div class="flashcard-inner">
-            <div class="flash-face"><strong>Why is AHIP not a chatbot?</strong><span>Click to reveal the answer.</span></div>
-            <div class="flash-face flash-back"><strong>The workflow makes a decision through deterministic agents; the LLM only improves how the result is explained.</strong><span>It is an agentic workflow.</span></div>
-          </div>
-        </button>
-        <button class="flashcard" type="button" aria-label="Flip flashcard about validation">
-          <div class="flashcard-inner">
-            <div class="flash-face"><strong>What does validation protect?</strong><span>Click to reveal the answer.</span></div>
-            <div class="flash-face flash-back"><strong>It protects the schema, the protected fields, and the reliability of the final response.</strong><span>Invalid output never reaches the user.</span></div>
-          </div>
-        </button>
-      </div>
-    </section>
-
-    <!-- =====================================================
-         Recap
-    ====================================================== -->
-    <section class="scene reveal" id="recap" data-title="Quick Recap">
-      <div class="scene-head">
-        <div>
-          <span class="eyebrow">Quick Recap</span>
-          <h2>One glance at the parts that make the system trustworthy.</h2>
-        </div>
-        <div class="scene-note">A compact checklist you can use at the end of the presentation.</div>
-      </div>
-
-      <div class="checklist">
-        <div class="check-item"><div class="mark">✓</div>Safe Context</div>
-        <div class="check-item"><div class="mark">✓</div>Prompt Contracts</div>
-        <div class="check-item"><div class="mark">✓</div>Validation</div>
-        <div class="check-item"><div class="mark">✓</div>Mock Provider</div>
-        <div class="check-item"><div class="mark">✓</div>Fallback</div>
-        <div class="check-item"><div class="mark">✓</div>Audit Metadata</div>
-        <div class="check-item"><div class="mark">✓</div>LLM inside LangGraph</div>
-      </div>
-    </section>
+    <!-- Learning, demo, flashcards and recap removed for product-focused presentation -->
 
     <!-- =====================================================
          Final
     ====================================================== -->
     <section class="scene final-screen reveal" id="final" data-title="Final Screen">
-      <span class="eyebrow">Stage 4 Complete</span>
-      <h2>LLM Agent Integration. Rules remain deterministic. The LLM enhances explanations.</h2>
-      <p>AHIP is an agentic healthcare intelligence workflow, not a chatbot. The architecture keeps the core decisions fixed, adds structured validation, and uses fallback to preserve reliability.</p>
+      <span class="eyebrow">Product Overview</span>
+      <h2>AHIP demonstrates how deterministic workflows and controlled AI coexist in a safe, explainable enterprise architecture.</h2>
+      <p>Decisions remain rule-based. Explanations are refined under strict validation and audit. Humans retain final review and control.</p>
       <div class="final-meta">
-        <span class="meta-pill">Prepared by Anirudh</span>
-        <span class="meta-pill">RealRails Internship</span>
-        <span class="meta-pill"><a href="https://github.com/anriudh0/AHIP" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">GitHub Repository</a></span>
+        <span class="meta-pill">Live Application: <a href="https://ahip-eta.vercel.app/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">ahip-eta.vercel.app</a></span>
+        <span class="meta-pill">API: <a href="https://ahip.onrender.com" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">ahip.onrender.com</a></span>
+        <span class="meta-pill">Repository: <a href="https://github.com/anriudh0/AHIP" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">github.com/anriudh0/AHIP</a></span>
       </div>
       <footer>
         <div>
-          <strong>Prepared by</strong>
-          Anirudh · RealRails Internship
-        </div>
-        <div>
-          <strong>Repository</strong>
-          <a href="https://github.com/anriudh0/AHIP" target="_blank" rel="noopener noreferrer" style="color:var(--text);text-decoration:none;">https://github.com/anriudh0/AHIP</a>
+          <strong>Resources</strong>
+          Links to the repository, API, and live demo.
         </div>
       </footer>
     </section>
@@ -1735,77 +1668,101 @@
        Architecture Explorer Panel
     ========================================================= */
     const nodeDetails = {
-      'workflow-state': {
-        title: 'Workflow State',
-        lead: 'The shared state object that LangGraph passes from node to node.',
-        purpose: 'Carries the claim data, agent outputs, route flags, and recommendation state.',
-        inputs: 'Claim payload, agent observations, and graph-level metadata.',
-        outputs: 'One authoritative state snapshot for the next step in the workflow.',
-        responsibility: 'Keep the workflow consistent and deterministic.'
+      'patient-agent': {
+        title: 'Patient Agent',
+        lead: 'Extracts patient-specific signals and care history.',
+        purpose: 'Detects risk flags, prior events, and contributes observations to shared memory.',
+        inputs: 'Patient record snippets, claim references, and prior alerts.',
+        outputs: 'Patient-focused observations and risk indicators.',
+        responsibility: 'Surface patient context for downstream agents.'
       },
-      'safe-context': {
-        title: 'Safe Context Builder',
-        lead: 'Builds the minimal context required for the LLM call.',
-        purpose: 'Redacts unnecessary or protected information before the prompt is created.',
-        inputs: 'Shared state, protected field list, and relevant agent outputs.',
-        outputs: 'Clean context payload for the prompt contract.',
-        responsibility: 'Prevent leakage and preserve the business rules.'
+      'claims-agent': {
+        title: 'Claims Agent',
+        lead: 'Evaluates claim details and exception patterns.',
+        purpose: 'Checks amounts, coding mismatches, and rule-based exceptions.',
+        inputs: 'Claim payload and policy rules.',
+        outputs: 'Claims-level findings and flags.',
+        responsibility: 'Protect scoring and routing accuracy.'
       },
-      'prompt-contract': {
-        title: 'Prompt Contract',
-        lead: 'Defines what the LLM may return and what it must not change.',
-        purpose: 'Keeps the LLM inside a strict structured response shape.',
-        inputs: 'Safe context and the output schema requirements.',
-        outputs: 'A constrained prompt that expects valid JSON.',
-        responsibility: 'Make the LLM predictable and validateable.'
-      },
-      'provider-adapter': {
-        title: 'Provider Adapter',
-        lead: 'Resolves the chosen LLM provider behind one stable interface.',
-        purpose: 'Allow the system to swap providers without changing the Consolidator logic.',
-        inputs: 'Provider name, settings, and execution request.',
-        outputs: 'A provider implementation ready to generate a structured response.',
-        responsibility: 'Hide provider differences from the rest of the workflow.'
-      },
-      'mock-provider': {
-        title: 'Mock Provider',
-        lead: 'Deterministic provider used for stable demos and testing.',
-        purpose: 'Simulate an LLM response without network dependency.',
-        inputs: 'Prompt and fixed provider settings.',
-        outputs: 'Structured output that behaves like a real provider response.',
-        responsibility: 'Make the demo and validation repeatable.'
-      },
-      'validator': {
-        title: 'Validator',
-        lead: 'Checks the output before the recommendation is shown.',
-        purpose: 'Reject malformed JSON, schema violations, and protected-field changes.',
-        inputs: 'Provider output and schema rules.',
-        outputs: 'Validation status plus any failure details.',
-        responsibility: 'Guard the deterministic core from bad LLM output.'
-      },
-      'fallback': {
-        title: 'Fallback',
-        lead: 'The safe route when the provider fails or the output is invalid.',
-        purpose: 'Keep the business workflow moving without changing the decision.',
-        inputs: 'Failure reason and deterministic base recommendation.',
-        outputs: 'Safe deterministic response and metadata about the failure.',
-        responsibility: 'Guarantee reliability.'
-      },
-      'audit-metadata': {
-        title: 'Audit Metadata',
-        lead: 'Everything needed to explain what happened during the LLM step.',
-        purpose: 'Capture provider, model, validation, latency, and fallback data.',
-        inputs: 'Provider result, validation result, and runtime timing.',
-        outputs: 'A traceable metadata object attached to the response.',
-        responsibility: 'Preserve observability for mentors and auditors.'
+      'provider-agent': {
+        title: 'Provider Agent',
+        lead: 'Reviews provider contracts and network status.',
+        purpose: 'Identify provider-specific concerns and contractual constraints.',
+        inputs: 'Provider metadata and contract rules.',
+        outputs: 'Provider-related signals and exceptions.',
+        responsibility: 'Inform routing and decision-making based on provider context.'
       },
       'consolidator': {
         title: 'Consolidator',
-        lead: 'The only node that uses the LLM.',
-        purpose: 'Turn deterministic evidence into a clearer recommendation narrative.',
-        inputs: 'Agent outputs, safe context, and prompt contract.',
-        outputs: 'Readable summary, validated output, and audit metadata.',
-        responsibility: 'Enhance explanation without changing the decision.'
+        lead: 'Combines specialist outputs and produces the narrative.',
+        purpose: 'Compose a readable recommendation while preserving deterministic values.',
+        inputs: 'Agent outputs, shared memory snapshot, and safe context.',
+        outputs: 'Validated narrative, recommendation text, and audit metadata.',
+        responsibility: 'Provide human-friendly explanations without changing decisions.'
+      },
+      'shared-memory': {
+        title: 'Shared Memory',
+        lead: 'A single authoritative case understanding used by all agents.',
+        purpose: 'Enable collaboration by storing observations, flags, and decisions.',
+        inputs: 'Agent observations, route flags, and interim recommendations.',
+        outputs: 'A consolidated state object consumed by nodes.',
+        responsibility: 'Keep the workflow consistent and traceable.'
+      },
+      'context-builder': {
+        title: 'Context Builder',
+        lead: 'Builds a minimal, redacted payload for the LLM step.',
+        purpose: 'Remove protected fields and prepare only necessary inputs.',
+        inputs: 'Shared memory snapshot and redaction rules.',
+        outputs: 'Safe context for the prompt contract.',
+        responsibility: 'Prevent leakage and keep prompts focused.'
+      },
+      'prompt-contract': {
+        title: 'Prompt Contract',
+        lead: 'Defines the expected shape and constraints for LLM output.',
+        purpose: 'Ensure the LLM returns structured JSON and avoids protected fields.',
+        inputs: 'Safe context and schema requirements.',
+        outputs: 'A constrained instruction set for the provider.',
+        responsibility: 'Make LLM responses verifiable.'
+      },
+      'provider-adapter': {
+        title: 'Provider Adapter',
+        lead: 'Resolves provider implementation without leaking details.',
+        purpose: 'Allow swapping providers or using a mock for demos.',
+        inputs: 'Provider settings and execution request.',
+        outputs: 'A provider instance that can generate structured output.',
+        responsibility: 'Isolate provider differences from the graph.'
+      },
+      'mock-provider': {
+        title: 'Mock Provider',
+        lead: 'Deterministic provider for testing and offline demos.',
+        purpose: 'Return predictable structured outputs without network calls.',
+        inputs: 'Prompt and test settings.',
+        outputs: 'Stable, schema-compliant responses.',
+        responsibility: 'Enable repeatable demos and CI-friendly tests.'
+      },
+      'validator': {
+        title: 'Validator',
+        lead: 'Verifies structure, protected fields, and schema rules.',
+        purpose: 'Accept or reject LLM output before it reaches reviewers.',
+        inputs: 'Provider output and schema definitions.',
+        outputs: 'Validation status, errors, and acceptance flag.',
+        responsibility: 'Guard business logic from accidental drift.'
+      },
+      'fallback': {
+        title: 'Fallback',
+        lead: 'A deterministic recovery path if the LLM fails verification.',
+        purpose: 'Return the original deterministic recommendation and record metadata.',
+        inputs: 'Failure reason and deterministic recommendation.',
+        outputs: 'Safe recommendation and trace data.',
+        responsibility: 'Keep the system reliable under failure.'
+      },
+      'audit-metadata': {
+        title: 'Audit Metadata',
+        lead: 'Records provider, latency, validation and fallback details.',
+        purpose: 'Provide a traceable record for reviewers and auditors.',
+        inputs: 'Provider result, validation outcome, and timing.',
+        outputs: 'A metadata object attached to the response.',
+        responsibility: 'Preserve observability and accountability.'
       }
     };
 
@@ -1954,6 +1911,7 @@
     let demoIndex = 0;
     let demoTimer = null;
     function cycleDemo(){
+      if(demoSteps.length === 0) return;
       demoSteps.forEach((step, index) => step.classList.toggle('active', index === demoIndex));
       demoIndex = (demoIndex + 1) % demoSteps.length;
       demoTimer = setTimeout(cycleDemo, prefersReducedMotion ? 999999 : 1300);
@@ -1967,7 +1925,8 @@
         }
       });
     }, {threshold:.4});
-    demoObserver.observe(document.getElementById('demo'));
+    const demoEl = document.getElementById('demo');
+    if(demoEl) demoObserver.observe(demoEl);
 
     /* =========================================================
        Flashcards
